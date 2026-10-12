@@ -1,0 +1,35 @@
+# Synthetic scenario. Units are abstract (distance, time, energy).
+# Deliberately INFEASIBLE: stope_3 is only reachable through flooded_drift (no-go) or a
+# closed no-go edge.
+id: h04_flooded_drift
+tier: hard
+domain: mining
+description: A loader and a bolter must reach three stopes; access to stope_3 is closed.
+fleet:
+  - {id: loader_1, type: loader, capabilities: [load], speed: 1.5, payload_capacity: 0, battery_capacity: 160, energy_per_distance: 1.5, charge_rate: 12, start_zone: shop}
+  - {id: bolter_1, type: bolter, capabilities: [bolt], speed: 1.2, payload_capacity: 0, battery_capacity: 120, energy_per_distance: 1.2, charge_rate: 10, start_zone: shop}
+site:
+  zones:
+    - {id: shop, kind: depot}
+    - {id: main_drift, kind: drift}
+    - {id: stope_1, kind: stope}
+    - {id: stope_2, kind: stope}
+    - {id: flooded_drift, kind: drift, no_go: true}
+    - {id: stope_3, kind: stope}
+  edges:
+    - {a: shop, b: main_drift, distance: 12}
+    - {a: main_drift, b: stope_1, distance: 8}
+    - {a: main_drift, b: stope_2, distance: 10}
+    - {a: main_drift, b: flooded_drift, distance: 6}
+    - {a: flooded_drift, b: stope_3, distance: 6}
+    - {a: stope_2, b: stope_3, distance: 15, no_go: true}
+  charging_stations: [shop]
+mission:
+  tasks:
+    - {id: bolt_1, required_capability: bolt, zone: stope_1, duration: 20}
+    - {id: load_1, required_capability: load, zone: stope_1, duration: 15, precedence: [bolt_1]}
+    - {id: load_2, required_capability: load, zone: stope_2, duration: 15}
+    - {id: bolt_3, required_capability: bolt, zone: stope_3, duration: 20}
+ground_truth:
+  feasible: false
+  reason: "ROUTE: stope_3 is only reachable via the no-go zone flooded_drift or the no-go edge stope_2-stope_3."

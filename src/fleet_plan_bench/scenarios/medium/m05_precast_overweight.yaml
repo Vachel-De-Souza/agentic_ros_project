@@ -1,0 +1,29 @@
+# Synthetic scenario. Units are abstract (distance, time, energy).
+# Deliberately INFEASIBLE: the beam weighs 30 and the largest truck carries 25.
+id: m05_precast_overweight
+tier: medium
+domain: construction
+description: Two flatbed trucks and a telehandler must deliver precast elements; one beam is too heavy.
+fleet:
+  - {id: flatbed_1, type: flatbed_truck, capabilities: [haul], speed: 3, payload_capacity: 25, battery_capacity: 120, energy_per_distance: 1.2, charge_rate: 10, start_zone: laydown}
+  - {id: flatbed_2, type: flatbed_truck, capabilities: [haul], speed: 3, payload_capacity: 20, battery_capacity: 120, energy_per_distance: 1.2, charge_rate: 10, start_zone: laydown}
+  - {id: telehandler_1, type: telehandler, capabilities: [lift, haul], speed: 1.5, payload_capacity: 8, battery_capacity: 80, energy_per_distance: 1, charge_rate: 8, start_zone: laydown}
+site:
+  zones:
+    - {id: laydown, kind: depot}
+    - {id: site_road, kind: road}
+    - {id: block_1, kind: building}
+    - {id: block_2, kind: building}
+  edges:
+    - {a: laydown, b: site_road, distance: 6}
+    - {a: site_road, b: block_1, distance: 5}
+    - {a: site_road, b: block_2, distance: 7}
+  charging_stations: [laydown]
+mission:
+  tasks:
+    - {id: deliver_slabs, required_capability: haul, zone: block_1, duration: 10, payload_demand: 18}
+    - {id: deliver_beam, required_capability: haul, zone: block_2, duration: 12, payload_demand: 30}
+    - {id: lift_beam, required_capability: lift, zone: block_2, duration: 8, precedence: [deliver_beam]}
+ground_truth:
+  feasible: false
+  reason: "PAYLOAD: deliver_beam needs 30 but the largest haul capacity is 25."

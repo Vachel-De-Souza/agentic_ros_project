@@ -1,0 +1,29 @@
+# Synthetic scenario. Units are abstract (distance, time, energy).
+# Deliberately INFEASIBLE: formwork (10) -> pour (10) -> inspect (10) is a chain of 30
+# time units of work, but inspect must end by t=25.
+id: h03_pour_deadline
+tier: hard
+domain: construction
+description: A three-step precedence chain cannot fit inside the inspection deadline.
+fleet:
+  - {id: carpenter_rig_1, type: formwork_rig, capabilities: [formwork], speed: 2, payload_capacity: 0, battery_capacity: 100, energy_per_distance: 1, charge_rate: 10, start_zone: compound}
+  - {id: pump_truck_1, type: concrete_pump, capabilities: [pour], speed: 2, payload_capacity: 10, battery_capacity: 100, energy_per_distance: 1, charge_rate: 10, start_zone: compound}
+  - {id: inspection_cart_1, type: inspection_cart, capabilities: [inspect], speed: 3, payload_capacity: 0, battery_capacity: 60, energy_per_distance: 0.5, charge_rate: 10, start_zone: compound}
+site:
+  zones:
+    - {id: compound, kind: depot}
+    - {id: slab_east, kind: work_area}
+    - {id: slab_west, kind: work_area}
+  edges:
+    - {a: compound, b: slab_east, distance: 4}
+    - {a: compound, b: slab_west, distance: 6}
+  charging_stations: [compound]
+mission:
+  tasks:
+    - {id: formwork_east, required_capability: formwork, zone: slab_east, duration: 10}
+    - {id: pour_east, required_capability: pour, zone: slab_east, duration: 10, precedence: [formwork_east]}
+    - {id: inspect_east, required_capability: inspect, zone: slab_east, duration: 10, precedence: [pour_east], time_window: {latest_end: 25}}
+    - {id: formwork_west, required_capability: formwork, zone: slab_west, duration: 10}
+ground_truth:
+  feasible: false
+  reason: "TEMPORAL: the formwork -> pour -> inspect chain needs at least 32 time units (30 work + 2 travel) but inspect_east must end by t=25."

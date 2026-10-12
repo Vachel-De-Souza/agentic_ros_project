@@ -1,0 +1,46 @@
+# Synthetic scenario. Units are abstract (distance, time, energy).
+id: m03_mine_bench
+tier: medium
+domain: mining
+description: Drill rig, loader and two trucks on a long decline; the drill rig must recharge underground.
+fleet:
+  - {id: drill_rig_1, type: drill_rig, capabilities: [drill], speed: 1, payload_capacity: 0, battery_capacity: 100, energy_per_distance: 1.2, charge_rate: 10, start_zone: portal}
+  - {id: loader_1, type: loader, capabilities: [load], speed: 1.5, payload_capacity: 0, battery_capacity: 160, energy_per_distance: 1.5, charge_rate: 12, start_zone: portal}
+  - {id: truck_a, type: haul_truck, capabilities: [haul], speed: 2, payload_capacity: 50, battery_capacity: 200, energy_per_distance: 1.6, charge_rate: 15, start_zone: portal}
+  - {id: truck_b, type: haul_truck, capabilities: [haul], speed: 2, payload_capacity: 50, battery_capacity: 200, energy_per_distance: 1.6, charge_rate: 15, start_zone: portal}
+site:
+  zones:
+    - {id: portal, kind: depot}
+    - {id: decline_1, kind: decline}
+    - {id: decline_2, kind: decline}
+    - {id: bench_a, kind: bench}
+    - {id: bench_b, kind: bench}
+    - {id: bench_c, kind: bench}
+    - {id: tip, kind: tip}
+  edges:
+    - {a: portal, b: decline_1, distance: 35}
+    - {a: decline_1, b: decline_2, distance: 30}
+    - {a: decline_2, b: bench_a, distance: 15}
+    - {a: decline_2, b: bench_b, distance: 20}
+    - {a: bench_b, b: bench_c, distance: 10}
+    - {a: decline_1, b: tip, distance: 25}
+  charging_stations: [portal, decline_2]
+mission:
+  tasks:
+    - {id: drill_a, required_capability: drill, zone: bench_a, duration: 30}
+    - {id: drill_b, required_capability: drill, zone: bench_b, duration: 30}
+    - {id: load_a, required_capability: load, zone: bench_a, duration: 15, precedence: [drill_a]}
+    - {id: load_b, required_capability: load, zone: bench_b, duration: 15, precedence: [drill_b]}
+    - {id: haul_a, required_capability: haul, zone: tip, duration: 10, payload_demand: 45, precedence: [load_a]}
+    - {id: haul_b, required_capability: haul, zone: tip, duration: 10, payload_demand: 45, precedence: [load_b]}
+ground_truth:
+  feasible: true
+  reference_plan:
+    planner: greedy
+    assignments:
+      - {machine: drill_rig_1, task: drill_a, route: [portal, decline_1, decline_2, bench_a], start: 87.8, end: 117.8, charging_stops: [{zone: decline_2}]}
+      - {machine: drill_rig_1, task: drill_b, route: [bench_a, decline_2, bench_b], start: 152.8, end: 182.8}
+      - {machine: loader_1, task: load_a, route: [portal, decline_1, decline_2, bench_a], start: 117.8, end: 132.8}
+      - {machine: truck_a, task: haul_a, route: [portal, decline_1, decline_2, decline_1, tip], start: 132.8, end: 142.8, charging_stops: [{zone: decline_2}]}
+      - {machine: loader_1, task: load_b, route: [bench_a, decline_2, bench_b], start: 182.8, end: 197.8, charging_stops: [{zone: decline_2}]}
+      - {machine: truck_a, task: haul_b, route: [tip], start: 197.8, end: 207.8}

@@ -1,0 +1,47 @@
+# Synthetic scenario. Units are abstract (distance, time, energy).
+id: e03_site_grading
+tier: easy
+domain: construction
+description: Two identical graders level six building pads on a grid; one pad has a time window.
+fleet:
+  - {id: grader_1, type: grader, capabilities: [grade], speed: 1.5, payload_capacity: 0, battery_capacity: 150, energy_per_distance: 1.2, charge_rate: 8, start_zone: yard}
+  - {id: grader_2, type: grader, capabilities: [grade], speed: 1.5, payload_capacity: 0, battery_capacity: 150, energy_per_distance: 1.2, charge_rate: 8, start_zone: yard}
+site:
+  zones:
+    - {id: yard, kind: depot}
+    - {id: pad_1}
+    - {id: pad_2}
+    - {id: pad_3}
+    - {id: pad_4}
+    - {id: pad_5}
+    - {id: pad_6}
+  edges:
+    - {a: yard, b: pad_1, distance: 5}
+    - {a: pad_1, b: pad_2, distance: 4}
+    - {a: pad_2, b: pad_3, distance: 4}
+    - {a: yard, b: pad_4, distance: 6}
+    - {a: pad_4, b: pad_5, distance: 4}
+    - {a: pad_5, b: pad_6, distance: 4}
+    - {a: pad_1, b: pad_4, distance: 3}
+    - {a: pad_2, b: pad_5, distance: 3}
+    - {a: pad_3, b: pad_6, distance: 3}
+  charging_stations: [yard]
+mission:
+  tasks:
+    - {id: grade_1, required_capability: grade, zone: pad_1, duration: 12}
+    - {id: grade_2, required_capability: grade, zone: pad_2, duration: 10}
+    - {id: grade_3, required_capability: grade, zone: pad_3, duration: 14}
+    - {id: grade_4, required_capability: grade, zone: pad_4, duration: 9}
+    - {id: grade_5, required_capability: grade, zone: pad_5, duration: 11, time_window: {earliest_start: 20, latest_end: 60}}
+    - {id: grade_6, required_capability: grade, zone: pad_6, duration: 10}
+ground_truth:
+  feasible: true
+  reference_plan:
+    planner: greedy
+    assignments:
+      - {machine: grader_1, task: grade_5, route: [yard, pad_4, pad_5], start: 20.0, end: 31.0}
+      - {machine: grader_2, task: grade_1, route: [yard, pad_1], start: 3.334, end: 15.334}
+      - {machine: grader_2, task: grade_2, route: [pad_1, pad_2], start: 18.001, end: 28.001}
+      - {machine: grader_2, task: grade_3, route: [pad_2, pad_3], start: 30.668, end: 44.668}
+      - {machine: grader_1, task: grade_4, route: [pad_5, pad_4], start: 33.667, end: 42.667}
+      - {machine: grader_2, task: grade_6, route: [pad_3, pad_6], start: 46.668, end: 56.668}

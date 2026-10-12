@@ -1,0 +1,39 @@
+# Synthetic scenario. Units are abstract (distance, time, energy).
+id: e01_orchard_mowing
+tier: easy
+domain: agriculture
+description: Two identical electric mowers mow four orchard blocks.
+fleet:
+  - {id: mower_1, type: mower, capabilities: [mow], speed: 2, payload_capacity: 0, battery_capacity: 100, energy_per_distance: 1, charge_rate: 5, start_zone: barn}
+  - {id: mower_2, type: mower, capabilities: [mow], speed: 2, payload_capacity: 0, battery_capacity: 100, energy_per_distance: 1, charge_rate: 5, start_zone: barn}
+site:
+  zones:
+    - {id: barn, kind: depot}
+    - {id: lane, kind: track}
+    - {id: block_a, kind: orchard}
+    - {id: block_b, kind: orchard}
+    - {id: block_c, kind: orchard}
+    - {id: block_d, kind: orchard}
+  edges:
+    - {a: barn, b: lane, distance: 4}
+    - {a: lane, b: block_a, distance: 2}
+    - {a: lane, b: block_b, distance: 3}
+    - {a: block_a, b: block_c, distance: 2}
+    - {a: block_b, b: block_d, distance: 2}
+    - {a: block_c, b: block_d, distance: 3}
+  charging_stations: [barn]
+mission:
+  tasks:
+    - {id: mow_a, required_capability: mow, zone: block_a, duration: 10}
+    - {id: mow_b, required_capability: mow, zone: block_b, duration: 12}
+    - {id: mow_c, required_capability: mow, zone: block_c, duration: 8}
+    - {id: mow_d, required_capability: mow, zone: block_d, duration: 9}
+ground_truth:
+  feasible: true
+  reference_plan:
+    planner: greedy
+    assignments:
+      - {machine: mower_1, task: mow_a, route: [barn, lane, block_a], start: 3.0, end: 13.0}
+      - {machine: mower_2, task: mow_b, route: [barn, lane, block_b], start: 3.5, end: 15.5}
+      - {machine: mower_1, task: mow_c, route: [block_a, block_c], start: 14.0, end: 22.0}
+      - {machine: mower_2, task: mow_d, route: [block_b, block_d], start: 16.5, end: 25.5}

@@ -1,0 +1,52 @@
+# Synthetic scenario. Units are abstract (distance, time, energy).
+id: h01_harvest_chain
+tier: hard
+domain: agriculture
+description: Two combines, a grain cart and a baler with harvest -> cart -> store chains and time windows.
+fleet:
+  - {id: combine_1, type: combine, capabilities: [harvest], speed: 1.5, payload_capacity: 0, battery_capacity: 150, energy_per_distance: 1.5, charge_rate: 10, start_zone: yard}
+  - {id: combine_2, type: combine, capabilities: [harvest], speed: 1.5, payload_capacity: 0, battery_capacity: 150, energy_per_distance: 1.5, charge_rate: 10, start_zone: yard}
+  - {id: grain_cart_1, type: grain_cart, capabilities: [haul], speed: 2.5, payload_capacity: 30, battery_capacity: 100, energy_per_distance: 1.2, charge_rate: 10, start_zone: yard}
+  - {id: baler_1, type: baler, capabilities: [bale], speed: 2, payload_capacity: 0, battery_capacity: 90, energy_per_distance: 1, charge_rate: 8, start_zone: yard}
+site:
+  zones:
+    - {id: yard, kind: depot}
+    - {id: lane, kind: track}
+    - {id: headland, kind: track}
+    - {id: field_w, kind: field}
+    - {id: field_e, kind: field}
+    - {id: grain_store, kind: storage}
+    - {id: creek, kind: protected, no_go: true}
+  edges:
+    - {a: yard, b: lane, distance: 6}
+    - {a: lane, b: headland, distance: 8}
+    - {a: headland, b: field_w, distance: 5}
+    - {a: headland, b: field_e, distance: 9}
+    - {a: lane, b: grain_store, distance: 4}
+    - {a: field_w, b: creek, distance: 2}
+    - {a: creek, b: field_e, distance: 2}
+    - {a: yard, b: grain_store, distance: 7}
+  charging_stations: [yard]
+mission:
+  tasks:
+    - {id: harvest_w, required_capability: harvest, zone: field_w, duration: 40}
+    - {id: harvest_e, required_capability: harvest, zone: field_e, duration: 35, time_window: {earliest_start: 20, latest_end: 120}}
+    - {id: cart_w, required_capability: haul, zone: field_w, duration: 10, payload_demand: 28, precedence: [harvest_w]}
+    - {id: cart_e, required_capability: haul, zone: field_e, duration: 10, payload_demand: 25, precedence: [harvest_e]}
+    - {id: store_w, required_capability: haul, zone: grain_store, duration: 6, payload_demand: 28, precedence: [cart_w]}
+    - {id: store_e, required_capability: haul, zone: grain_store, duration: 6, payload_demand: 25, precedence: [cart_e], time_window: {latest_end: 160}}
+    - {id: bale_w, required_capability: bale, zone: field_w, duration: 20, precedence: [harvest_w]}
+    - {id: bale_e, required_capability: bale, zone: field_e, duration: 18, precedence: [harvest_e]}
+ground_truth:
+  feasible: true
+  reference_plan:
+    planner: greedy
+    assignments:
+      - {machine: combine_1, task: harvest_e, route: [yard, lane, headland, field_e], start: 20.0, end: 55.0}
+      - {machine: baler_1, task: bale_e, route: [yard, lane, headland, field_e], start: 55.0, end: 73.0}
+      - {machine: grain_cart_1, task: cart_e, route: [yard, lane, headland, field_e], start: 55.0, end: 65.0}
+      - {machine: grain_cart_1, task: store_e, route: [field_e, headland, lane, grain_store], start: 73.4, end: 79.4}
+      - {machine: combine_2, task: harvest_w, route: [yard, lane, headland, field_w], start: 12.667, end: 52.667}
+      - {machine: baler_1, task: bale_w, route: [field_e, headland, field_w], start: 80.0, end: 100.0}
+      - {machine: grain_cart_1, task: cart_w, route: [grain_store, yard, lane, headland, field_w], start: 95.92, end: 105.92, charging_stops: [{zone: yard}]}
+      - {machine: grain_cart_1, task: store_w, route: [field_w, headland, lane, grain_store], start: 112.72, end: 118.72}

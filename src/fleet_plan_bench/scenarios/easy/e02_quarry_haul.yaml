@@ -1,0 +1,42 @@
+# Synthetic scenario. Units are abstract (distance, time, energy).
+id: e02_quarry_haul
+tier: easy
+domain: mining
+description: Three identical haul trucks move five loads around a small quarry.
+fleet:
+  - {id: truck_1, type: haul_truck, capabilities: [haul], speed: 3, payload_capacity: 40, battery_capacity: 200, energy_per_distance: 1, charge_rate: 10, start_zone: workshop}
+  - {id: truck_2, type: haul_truck, capabilities: [haul], speed: 3, payload_capacity: 40, battery_capacity: 200, energy_per_distance: 1, charge_rate: 10, start_zone: workshop}
+  - {id: truck_3, type: haul_truck, capabilities: [haul], speed: 3, payload_capacity: 40, battery_capacity: 200, energy_per_distance: 1, charge_rate: 10, start_zone: workshop}
+site:
+  zones:
+    - {id: workshop, kind: depot}
+    - {id: ramp, kind: road}
+    - {id: pit, kind: pit}
+    - {id: crusher, kind: plant}
+    - {id: stockpile_n, kind: stockpile}
+    - {id: stockpile_s, kind: stockpile}
+  edges:
+    - {a: workshop, b: ramp, distance: 9}
+    - {a: ramp, b: pit, distance: 12}
+    - {a: ramp, b: crusher, distance: 6}
+    - {a: crusher, b: stockpile_n, distance: 5}
+    - {a: crusher, b: stockpile_s, distance: 7}
+    - {a: pit, b: stockpile_s, distance: 15}
+  charging_stations: [workshop]
+mission:
+  tasks:
+    - {id: haul_1, required_capability: haul, zone: pit, duration: 8, payload_demand: 35}
+    - {id: haul_2, required_capability: haul, zone: crusher, duration: 6, payload_demand: 20}
+    - {id: haul_3, required_capability: haul, zone: stockpile_n, duration: 7, payload_demand: 30}
+    - {id: haul_4, required_capability: haul, zone: stockpile_s, duration: 7, payload_demand: 40}
+    - {id: haul_5, required_capability: haul, zone: pit, duration: 8, payload_demand: 25}
+ground_truth:
+  feasible: true
+  reference_plan:
+    planner: greedy
+    assignments:
+      - {machine: truck_1, task: haul_1, route: [workshop, ramp, pit], start: 7.0, end: 15.0}
+      - {machine: truck_2, task: haul_2, route: [workshop, ramp, crusher], start: 5.0, end: 11.0}
+      - {machine: truck_3, task: haul_3, route: [workshop, ramp, crusher, stockpile_n], start: 6.667, end: 13.667}
+      - {machine: truck_2, task: haul_4, route: [crusher, stockpile_s], start: 13.334, end: 20.334}
+      - {machine: truck_1, task: haul_5, route: [pit], start: 15.0, end: 23.0}

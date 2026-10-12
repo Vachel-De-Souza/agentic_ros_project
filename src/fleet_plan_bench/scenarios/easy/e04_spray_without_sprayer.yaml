@@ -1,0 +1,28 @@
+# Synthetic scenario. Units are abstract (distance, time, energy).
+# Deliberately INFEASIBLE: no machine has the spray capability.
+id: e04_spray_without_sprayer
+tier: easy
+domain: agriculture
+description: Two mowers are asked to mow and spray; neither can spray.
+fleet:
+  - {id: mower_1, type: mower, capabilities: [mow], speed: 2, payload_capacity: 0, battery_capacity: 100, energy_per_distance: 1, charge_rate: 5, start_zone: barn}
+  - {id: mower_2, type: mower, capabilities: [mow], speed: 2, payload_capacity: 0, battery_capacity: 100, energy_per_distance: 1, charge_rate: 5, start_zone: barn}
+site:
+  zones:
+    - {id: barn, kind: depot}
+    - {id: lane, kind: track}
+    - {id: block_a, kind: orchard}
+    - {id: block_b, kind: orchard}
+  edges:
+    - {a: barn, b: lane, distance: 4}
+    - {a: lane, b: block_a, distance: 2}
+    - {a: lane, b: block_b, distance: 3}
+  charging_stations: [barn]
+mission:
+  tasks:
+    - {id: mow_a, required_capability: mow, zone: block_a, duration: 10}
+    - {id: spray_a, required_capability: spray, zone: block_a, duration: 6, precedence: [mow_a]}
+    - {id: mow_b, required_capability: mow, zone: block_b, duration: 12}
+ground_truth:
+  feasible: false
+  reason: "CAPABILITY: task spray_a requires 'spray' and no machine in the fleet has it."

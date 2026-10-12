@@ -1,0 +1,43 @@
+# Synthetic scenario. Units are abstract (distance, time, energy).
+id: m02_construction_earthworks
+tier: medium
+domain: construction
+description: Excavator, dump truck and compactor with dig-then-haul and dig-then-compact dependencies.
+fleet:
+  - {id: excavator_1, type: excavator, capabilities: [dig], speed: 1, payload_capacity: 0, battery_capacity: 80, energy_per_distance: 2, charge_rate: 10, start_zone: gate}
+  - {id: dump_truck_1, type: dump_truck, capabilities: [haul], speed: 2.5, payload_capacity: 30, battery_capacity: 90, energy_per_distance: 1.5, charge_rate: 12, start_zone: gate}
+  - {id: compactor_1, type: compactor, capabilities: [compact], speed: 1.2, payload_capacity: 0, battery_capacity: 60, energy_per_distance: 1.5, charge_rate: 8, start_zone: gate}
+site:
+  zones:
+    - {id: gate, kind: depot}
+    - {id: haul_road, kind: road}
+    - {id: trench, kind: work_area}
+    - {id: foundation, kind: work_area}
+    - {id: spoil_pile, kind: stockpile}
+    - {id: access_road, kind: work_area}
+  edges:
+    - {a: gate, b: haul_road, distance: 6}
+    - {a: haul_road, b: trench, distance: 8}
+    - {a: haul_road, b: foundation, distance: 7}
+    - {a: trench, b: spoil_pile, distance: 9}
+    - {a: foundation, b: spoil_pile, distance: 12}
+    - {a: gate, b: access_road, distance: 5}
+    - {a: access_road, b: foundation, distance: 10}
+  charging_stations: [gate]
+mission:
+  tasks:
+    - {id: dig_trench, required_capability: dig, zone: trench, duration: 25}
+    - {id: haul_spoil, required_capability: haul, zone: spoil_pile, duration: 10, payload_demand: 25, precedence: [dig_trench]}
+    - {id: dig_foundation, required_capability: dig, zone: foundation, duration: 30}
+    - {id: compact_foundation, required_capability: compact, zone: foundation, duration: 15, precedence: [dig_foundation]}
+    - {id: compact_access_road, required_capability: compact, zone: access_road, duration: 12}
+ground_truth:
+  feasible: true
+  reference_plan:
+    planner: greedy
+    assignments:
+      - {machine: compactor_1, task: compact_access_road, route: [gate, access_road], start: 4.167, end: 16.167}
+      - {machine: excavator_1, task: dig_foundation, route: [gate, haul_road, foundation], start: 13.0, end: 43.0}
+      - {machine: compactor_1, task: compact_foundation, route: [access_road, foundation], start: 43.0, end: 58.0}
+      - {machine: excavator_1, task: dig_trench, route: [foundation, haul_road, gate, haul_road, trench], start: 75.2, end: 100.2, charging_stops: [{zone: gate}]}
+      - {machine: dump_truck_1, task: haul_spoil, route: [gate, haul_road, trench, spoil_pile], start: 100.2, end: 110.2}

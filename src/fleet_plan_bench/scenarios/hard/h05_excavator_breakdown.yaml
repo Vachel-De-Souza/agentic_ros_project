@@ -1,0 +1,70 @@
+# Synthetic scenario. Units are abstract (distance, time, energy).
+# Includes a mid-mission failure perturbation: excavator_1 breaks down.
+id: h05_excavator_breakdown
+tier: hard
+domain: construction
+description: Two excavators and two trucks dig and haul four cuts; one excavator later fails.
+fleet:
+  - {id: excavator_1, type: excavator, capabilities: [dig], speed: 1, payload_capacity: 0, battery_capacity: 120, energy_per_distance: 2, charge_rate: 10, start_zone: gate}
+  - {id: excavator_2, type: excavator, capabilities: [dig], speed: 1, payload_capacity: 0, battery_capacity: 120, energy_per_distance: 2, charge_rate: 10, start_zone: gate}
+  - {id: truck_1, type: dump_truck, capabilities: [haul], speed: 2.5, payload_capacity: 30, battery_capacity: 150, energy_per_distance: 1.5, charge_rate: 12, start_zone: gate}
+  - {id: truck_2, type: dump_truck, capabilities: [haul], speed: 2.5, payload_capacity: 30, battery_capacity: 150, energy_per_distance: 1.5, charge_rate: 12, start_zone: gate}
+site:
+  zones:
+    - {id: gate, kind: depot}
+    - {id: spine_road, kind: road}
+    - {id: cut_1, kind: work_area}
+    - {id: cut_2, kind: work_area}
+    - {id: cut_3, kind: work_area}
+    - {id: cut_4, kind: work_area}
+    - {id: fill_area, kind: stockpile}
+  edges:
+    - {a: gate, b: spine_road, distance: 5}
+    - {a: spine_road, b: cut_1, distance: 6}
+    - {a: spine_road, b: cut_2, distance: 8}
+    - {a: spine_road, b: cut_3, distance: 10}
+    - {a: cut_3, b: cut_4, distance: 5}
+    - {a: spine_road, b: fill_area, distance: 7}
+  charging_stations: [gate]
+mission:
+  tasks:
+    - {id: dig_1, required_capability: dig, zone: cut_1, duration: 20}
+    - {id: dig_2, required_capability: dig, zone: cut_2, duration: 20}
+    - {id: dig_3, required_capability: dig, zone: cut_3, duration: 25}
+    - {id: dig_4, required_capability: dig, zone: cut_4, duration: 25}
+    - {id: haul_1, required_capability: haul, zone: fill_area, duration: 8, payload_demand: 25, precedence: [dig_1]}
+    - {id: haul_2, required_capability: haul, zone: fill_area, duration: 8, payload_demand: 25, precedence: [dig_2]}
+    - {id: haul_3, required_capability: haul, zone: fill_area, duration: 8, payload_demand: 28, precedence: [dig_3]}
+    - {id: haul_4, required_capability: haul, zone: fill_area, duration: 8, payload_demand: 28, precedence: [dig_4]}
+perturbation:
+  # excavator_1 fails at t=50 while starting dig_3. dig_1, dig_2, haul_1 and haul_2 are done.
+  kind: machine_failure
+  time: 50
+  machine: excavator_1
+  completed_tasks: [dig_1, dig_2, haul_1, haul_2]
+  machine_states:
+    excavator_2: {zone: cut_2, available_from: 50, energy: 94}
+    truck_1: {zone: fill_area, available_from: 50, energy: 132}
+    truck_2: {zone: fill_area, available_from: 50, energy: 132}
+  ground_truth:
+    feasible: true
+    reference_plan:
+      planner: greedy
+      assignments:
+        - {machine: excavator_2, task: dig_3, route: [cut_2, spine_road, cut_3], start: 68.0, end: 93.0}
+        - {machine: excavator_2, task: dig_4, route: [cut_3, spine_road, gate, spine_road, cut_3, cut_4], start: 137.2, end: 162.2, charging_stops: [{zone: gate}]}
+        - {machine: truck_1, task: haul_3, route: [fill_area], start: 93.0, end: 101.0}
+        - {machine: truck_1, task: haul_4, route: [fill_area], start: 162.2, end: 170.2}
+ground_truth:
+  feasible: true
+  reference_plan:
+    planner: greedy
+    assignments:
+      - {machine: excavator_1, task: dig_1, route: [gate, spine_road, cut_1], start: 11.0, end: 31.0}
+      - {machine: excavator_2, task: dig_2, route: [gate, spine_road, cut_2], start: 13.0, end: 33.0}
+      - {machine: excavator_1, task: dig_3, route: [cut_1, spine_road, cut_3], start: 47.0, end: 72.0}
+      - {machine: excavator_2, task: dig_4, route: [cut_2, spine_road, gate, spine_road, cut_3, cut_4], start: 71.2, end: 96.2, charging_stops: [{zone: gate}]}
+      - {machine: truck_1, task: haul_1, route: [gate, spine_road, fill_area], start: 31.0, end: 39.0}
+      - {machine: truck_2, task: haul_2, route: [gate, spine_road, fill_area], start: 33.0, end: 41.0}
+      - {machine: truck_1, task: haul_3, route: [fill_area], start: 72.0, end: 80.0}
+      - {machine: truck_1, task: haul_4, route: [fill_area], start: 96.2, end: 104.2}

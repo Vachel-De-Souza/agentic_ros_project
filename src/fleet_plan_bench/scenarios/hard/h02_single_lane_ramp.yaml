@@ -1,0 +1,49 @@
+# Synthetic scenario. Units are abstract (distance, time, energy).
+# The ramp is single-lane (relevant to the experimental v0.2 conflict check).
+id: h02_single_lane_ramp
+tier: hard
+domain: mining
+description: Drill -> scale -> load -> haul chains on two benches reached by a single-lane ramp.
+fleet:
+  - {id: drill_rig_1, type: drill_rig, capabilities: [drill], speed: 1, payload_capacity: 0, battery_capacity: 120, energy_per_distance: 1.2, charge_rate: 10, start_zone: surface}
+  - {id: scaler_1, type: scaler, capabilities: [scale], speed: 1.2, payload_capacity: 0, battery_capacity: 100, energy_per_distance: 1, charge_rate: 10, start_zone: surface}
+  - {id: loader_1, type: loader, capabilities: [load], speed: 1.5, payload_capacity: 0, battery_capacity: 160, energy_per_distance: 1.5, charge_rate: 12, start_zone: surface}
+  - {id: truck_1, type: haul_truck, capabilities: [haul], speed: 2, payload_capacity: 50, battery_capacity: 200, energy_per_distance: 1.6, charge_rate: 15, start_zone: surface}
+site:
+  zones:
+    - {id: surface, kind: depot}
+    - {id: ramp_top, kind: ramp}
+    - {id: ramp_bottom, kind: ramp}
+    - {id: bench_1, kind: bench}
+    - {id: bench_2, kind: bench}
+    - {id: dump, kind: tip}
+  edges:
+    - {a: surface, b: ramp_top, distance: 10}
+    - {a: ramp_top, b: ramp_bottom, distance: 20, single_lane: true}
+    - {a: ramp_bottom, b: bench_1, distance: 8}
+    - {a: ramp_bottom, b: bench_2, distance: 12}
+    - {a: surface, b: dump, distance: 15}
+  charging_stations: [surface]
+mission:
+  tasks:
+    - {id: drill_1, required_capability: drill, zone: bench_1, duration: 25}
+    - {id: drill_2, required_capability: drill, zone: bench_2, duration: 25}
+    - {id: scale_1, required_capability: scale, zone: bench_1, duration: 10, precedence: [drill_1]}
+    - {id: scale_2, required_capability: scale, zone: bench_2, duration: 10, precedence: [drill_2]}
+    - {id: load_1, required_capability: load, zone: bench_1, duration: 12, precedence: [scale_1]}
+    - {id: load_2, required_capability: load, zone: bench_2, duration: 12, precedence: [scale_2]}
+    - {id: haul_1, required_capability: haul, zone: dump, duration: 8, payload_demand: 45, precedence: [load_1]}
+    - {id: haul_2, required_capability: haul, zone: dump, duration: 8, payload_demand: 45, precedence: [load_2]}
+ground_truth:
+  feasible: true
+  reference_plan:
+    planner: greedy
+    assignments:
+      - {machine: drill_rig_1, task: drill_1, route: [surface, ramp_top, ramp_bottom, bench_1], start: 38.0, end: 63.0}
+      - {machine: drill_rig_1, task: drill_2, route: [bench_1, ramp_bottom, ramp_top, surface, ramp_top, ramp_bottom, bench_2], start: 152.12, end: 177.12, charging_stops: [{zone: surface}]}
+      - {machine: scaler_1, task: scale_1, route: [surface, ramp_top, ramp_bottom, bench_1], start: 63.0, end: 73.0}
+      - {machine: loader_1, task: load_1, route: [surface, ramp_top, ramp_bottom, bench_1], start: 73.0, end: 85.0}
+      - {machine: truck_1, task: haul_1, route: [surface, dump], start: 85.0, end: 93.0}
+      - {machine: scaler_1, task: scale_2, route: [bench_1, ramp_bottom, ramp_top, surface, ramp_top, ramp_bottom, bench_2], start: 177.12, end: 187.12, charging_stops: [{zone: surface}]}
+      - {machine: loader_1, task: load_2, route: [bench_1, ramp_bottom, ramp_top, surface, ramp_top, ramp_bottom, bench_2], start: 187.12, end: 199.12, charging_stops: [{zone: surface}]}
+      - {machine: truck_1, task: haul_2, route: [dump], start: 199.12, end: 207.12}

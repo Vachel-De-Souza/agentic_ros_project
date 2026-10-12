@@ -1,0 +1,46 @@
+# Synthetic scenario. Units are abstract (distance, time, energy).
+id: m01_mixed_farm
+tier: medium
+domain: agriculture
+description: A tractor, a sprayer and a utility vehicle with small batteries work three fields.
+fleet:
+  - {id: tractor_1, type: tractor, capabilities: [till, seed], speed: 2, payload_capacity: 0, battery_capacity: 60, energy_per_distance: 1, charge_rate: 10, start_zone: farmyard}
+  - {id: sprayer_1, type: sprayer, capabilities: [spray], speed: 2.5, payload_capacity: 5, battery_capacity: 40, energy_per_distance: 0.8, charge_rate: 8, start_zone: farmyard}
+  - {id: utility_1, type: utility_vehicle, capabilities: [haul], speed: 3, payload_capacity: 20, battery_capacity: 50, energy_per_distance: 1, charge_rate: 10, start_zone: farmyard}
+site:
+  zones:
+    - {id: farmyard, kind: depot}
+    - {id: junction, kind: track}
+    - {id: north_field, kind: field}
+    - {id: south_field, kind: field}
+    - {id: east_field, kind: field}
+    - {id: silo, kind: storage}
+    - {id: wetland, kind: protected, no_go: true}
+  edges:
+    - {a: farmyard, b: junction, distance: 8}
+    - {a: junction, b: north_field, distance: 10}
+    - {a: junction, b: south_field, distance: 9}
+    - {a: junction, b: east_field, distance: 14}
+    - {a: north_field, b: east_field, distance: 12}
+    - {a: south_field, b: silo, distance: 7}
+    - {a: silo, b: farmyard, distance: 10}
+    - {a: north_field, b: wetland, distance: 3}
+    - {a: wetland, b: east_field, distance: 3}
+  charging_stations: [farmyard]
+mission:
+  tasks:
+    - {id: till_north, required_capability: till, zone: north_field, duration: 20}
+    - {id: seed_north, required_capability: seed, zone: north_field, duration: 15, precedence: [till_north]}
+    - {id: till_east, required_capability: till, zone: east_field, duration: 18}
+    - {id: spray_south, required_capability: spray, zone: south_field, duration: 12}
+    - {id: haul_seed_bags, required_capability: haul, zone: silo, duration: 5, payload_demand: 15, precedence: [seed_north]}
+ground_truth:
+  feasible: true
+  reference_plan:
+    planner: greedy
+    assignments:
+      - {machine: sprayer_1, task: spray_south, route: [farmyard, junction, south_field], start: 6.8, end: 18.8}
+      - {machine: tractor_1, task: till_east, route: [farmyard, junction, east_field], start: 11.0, end: 29.0}
+      - {machine: tractor_1, task: till_north, route: [east_field, north_field], start: 35.0, end: 55.0}
+      - {machine: tractor_1, task: seed_north, route: [north_field], start: 55.0, end: 70.0}
+      - {machine: utility_1, task: haul_seed_bags, route: [farmyard, silo], start: 70.0, end: 75.0}

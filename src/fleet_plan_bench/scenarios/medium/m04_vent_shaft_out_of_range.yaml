@@ -1,0 +1,29 @@
+# Synthetic scenario. Units are abstract (distance, time, energy).
+# Deliberately INFEASIBLE: the vent shaft is 60 away from the only charger, but the
+# hauler can drive at most 45 (battery 50, 10% reserve, 1 energy per distance).
+id: m04_vent_shaft_out_of_range
+tier: medium
+domain: mining
+description: A single electric utility hauler must service a remote vent shaft beyond its range.
+fleet:
+  - {id: hauler_1, type: utility_hauler, capabilities: [haul, inspect], speed: 2, payload_capacity: 20, battery_capacity: 50, energy_per_distance: 1, charge_rate: 5, start_zone: depot}
+site:
+  zones:
+    - {id: depot, kind: depot}
+    - {id: crosscut, kind: drift}
+    - {id: far_drift, kind: drift}
+    - {id: vent_shaft, kind: shaft}
+    - {id: pump_station, kind: plant}
+  edges:
+    - {a: depot, b: crosscut, distance: 20}
+    - {a: crosscut, b: far_drift, distance: 25}
+    - {a: far_drift, b: vent_shaft, distance: 15}
+    - {a: crosscut, b: pump_station, distance: 10}
+  charging_stations: [depot]
+mission:
+  tasks:
+    - {id: inspect_pump, required_capability: inspect, zone: pump_station, duration: 10}
+    - {id: deliver_filters, required_capability: haul, zone: vent_shaft, duration: 8, payload_demand: 10}
+ground_truth:
+  feasible: false
+  reason: "ENERGY: vent_shaft is 60 from the only charger; usable range is 45."
