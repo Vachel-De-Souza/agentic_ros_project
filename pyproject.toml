@@ -31,7 +31,7 @@ dependencies = [
 [project.optional-dependencies]
 ortools = ["ortools>=9.10"]
 llm = ["anthropic>=0.40"]
-dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.10", "types-PyYAML"]
+dev = ["pytest>=8", "ruff>=0.17,<0.18", "mypy>=1.10", "types-PyYAML"]
 
 [project.scripts]
 fpb = "fleet_plan_bench.cli:app"
