@@ -151,13 +151,13 @@ class Scenario(_Strict):
                 if p not in task_ids:
                     errors.append(f"task {t.id}: unknown predecessor {p}")
         if self.perturbation is not None:
-            p = self.perturbation
-            if p.machine not in machine_ids:
-                errors.append(f"perturbation: unknown machine {p.machine}")
-            for t_id in p.completed_tasks:
+            pt = self.perturbation
+            if pt.machine not in machine_ids:
+                errors.append(f"perturbation: unknown machine {pt.machine}")
+            for t_id in pt.completed_tasks:
                 if t_id not in task_ids:
                     errors.append(f"perturbation: unknown completed task {t_id}")
-            for m_id, st in p.machine_states.items():
+            for m_id, st in pt.machine_states.items():
                 if m_id not in machine_ids:
                     errors.append(f"perturbation: unknown machine state {m_id}")
                 if st.zone not in zone_ids:

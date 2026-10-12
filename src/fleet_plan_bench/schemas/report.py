@@ -19,7 +19,8 @@ class Check(str, Enum):
 
 
 class ViolationCode(str, Enum):
-    # 1. reference integrity (hallucinations)
+    # 1. schema and reference integrity (hallucinations)
+    SCHEMA_INVALID = "SCHEMA_INVALID"
     UNKNOWN_MACHINE = "UNKNOWN_MACHINE"
     UNKNOWN_TASK = "UNKNOWN_TASK"
     UNKNOWN_ZONE = "UNKNOWN_ZONE"
@@ -55,7 +56,12 @@ class ViolationCode(str, Enum):
 
 _CODE_TO_CHECK: dict[ViolationCode, Check] = {
     **dict.fromkeys(
-        (ViolationCode.UNKNOWN_MACHINE, ViolationCode.UNKNOWN_TASK, ViolationCode.UNKNOWN_ZONE),
+        (
+            ViolationCode.SCHEMA_INVALID,
+            ViolationCode.UNKNOWN_MACHINE,
+            ViolationCode.UNKNOWN_TASK,
+            ViolationCode.UNKNOWN_ZONE,
+        ),
         Check.REFERENCES,
     ),
     **dict.fromkeys(
