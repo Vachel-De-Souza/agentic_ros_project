@@ -29,6 +29,7 @@ SCALE = 1000  # CP-SAT works on integers; times are scaled by this factor
 
 class ORToolsPlanner:
     name = "ortools"
+    repairable = False  # deterministic: feedback would not change the plan
 
     def __init__(
         self, reserve_fraction: float = 0.10, max_deterministic_time: float = 10.0

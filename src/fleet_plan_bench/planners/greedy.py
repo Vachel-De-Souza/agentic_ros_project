@@ -56,6 +56,7 @@ class _Candidate:
 
 class GreedyPlanner:
     name = "greedy"
+    repairable = False  # deterministic: feedback would not change the plan
 
     def __init__(self, reserve_fraction: float = 0.10) -> None:
         self.reserve_fraction = reserve_fraction

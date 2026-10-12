@@ -148,6 +148,8 @@ def to_planner_output(data: Any, planner: str) -> Plan | Infeasible:
 class AnthropicPlanner:
     """Plans with a Claude model. Pass ``client`` to inject a custom or fake client."""
 
+    repairable = True
+
     def __init__(self, config: LLMPlannerConfig | None = None, client: Any = None) -> None:
         self.config = config or LLMPlannerConfig()
         self.name = f"llm:{self.config.model}"
