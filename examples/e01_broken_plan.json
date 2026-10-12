@@ -1,0 +1,8 @@
+{
+  "assignments": [
+    {"machine": "mower_1", "task": "mow_a", "route": ["barn", "lane", "block_a"], "start": 3, "end": 13},
+    {"machine": "mower_1", "task": "mow_c", "route": ["block_a", "block_c"], "start": 13, "end": 21},
+    {"machine": "mower_3", "task": "mow_b", "route": ["barn", "lane", "block_b"], "start": 3.5, "end": 15.5},
+    {"machine": "mower_2", "task": "mow_d", "route": ["barn", "block_d"], "start": 2, "end": 11}
+  ]
+}
