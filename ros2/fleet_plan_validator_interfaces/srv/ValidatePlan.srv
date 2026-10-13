@@ -1,0 +1,27 @@
+# Validate a fleet plan with the deterministic fleet-plan-bench validator.
+#
+# Payloads are JSON (or YAML for scenarios) in the fleet-plan-bench schema, so this
+# interface never duplicates the pydantic models and cannot drift from them.
+
+# Scenario as JSON or YAML text, or a built-in scenario id (e.g. "m03_mine_bench").
+# Empty: use the node's `default_scenario` parameter.
+string scenario
+# Plan as JSON: {"kind": "plan", "assignments": [...]} or {"kind": "infeasible", "reason": "..."}.
+string plan
+# Validate against the scenario after its mid-mission perturbation.
+bool perturbed
+---
+# True only for a plan with no violations.
+bool valid
+# The plan declared the mission infeasible instead of proposing assignments.
+bool declared_infeasible
+# For an infeasible declaration: whether the scenario's ground truth is also infeasible.
+bool agrees_with_ground_truth
+# Violation codes in report order, e.g. ["ENERGY_DEPLETED", "MACHINE_OVERLAP"].
+string[] violation_codes
+# Human-readable one-line-per-violation summary.
+string summary
+# Full ValidationReport as JSON (empty for infeasible declarations and errors).
+string report_json
+# Non-empty when the request could not be processed (e.g. the scenario does not load).
+string error
