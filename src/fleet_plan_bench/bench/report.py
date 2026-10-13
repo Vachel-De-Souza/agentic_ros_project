@@ -21,6 +21,12 @@ def results_dict(
     }
 
 
+def load_episodes(path: str | Path) -> list[EpisodeResult]:
+    """Episodes from a results.json written by ``write_results``."""
+    data = json.loads(Path(path).read_text())
+    return [EpisodeResult.model_validate(e) for e in data["episodes"]]
+
+
 def write_results(
     path: str | Path, episodes: Sequence[EpisodeResult], metrics: Sequence[PlannerMetrics]
 ) -> None:

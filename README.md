@@ -235,19 +235,57 @@ Built-in planners:
 
 ## Results
 
-Baselines on v0.1.0 (14 scenarios + 1 replanning episode = 15 episodes per planner;
-full table in [docs/baseline-results.md](docs/baseline-results.md)):
+v0.1.0 results: 14 scenarios plus 1 replanning episode, so 15 episodes per planner (10
+feasible, 5 deliberately infeasible), with up to 3 repairs. Full per-episode results are in
+[docs/results-v0.1.0.md](docs/results-v0.1.0.md) and
+[docs/results-v0.1.0.json](docs/results-v0.1.0.json).
 
 | Planner | First-attempt feasible | Post-repair feasible | Repair success | Hallucinated refs | Infeasible precision | Infeasible recall | Makespan gap vs ref | Mean tokens (in/out) | Mean latency |
 |---|---|---|---|---|---|---|---|---|---|
-| greedy | 100% | 100% | - | 0% | 100% | 100% | +0.0% | -/- | - |
-| ortools | 100% | 100% | - | 0% | 100% | 100% | -14.5% | -/- | - |
+| greedy | 100% | 100% | - | 0% | 100% | 100% | +0.0% | - | - |
+| ortools | 100% | 100% | - | 0% | 100% | 100% | -14.5% | - | - |
+| gemma4:12b (Ollama) | 40% | 90% | 83% | 0% | 100% | 100% | -6.1% | 2213/343 | 91s |
+| qwen3.5:9b (Ollama) | 0% | 20% | 25% | 0% | 50% | 100% | +73.3% | 2188/439 | 73s |
 
-The reference plans were produced by the greedy baseline, so greedy's 0% gap holds by
-construction, and both baselines were developed alongside these scenarios. The baselines
-show that the scenarios are solvable and that the infeasible ones are detectable. They
-say nothing about how hard the suite is for an LLM. **No LLM results are included yet.**
-Run `fpb bench -p llm` with your own API key to produce them.
+**By tier** (first attempt -> after repair, feasible episodes only):
+
+| Planner | Easy | Medium | Hard |
+|---|---|---|---|
+| gemma4:12b | 100% -> 100% | 33% -> 100% | 0% -> 75% |
+| qwen3.5:9b | 0% -> 33% | 0% -> 33% | 0% -> 0% |
+
+**First-attempt violations**
+
+- **gemma4:12b:** `TRAVEL_TIME_INFEASIBLE` x13, `EDGE_MISSING` x4, `ENERGY_DEPLETED` x1,
+  `RESERVE_VIOLATED` x1.
+- **qwen3.5:9b:** `TRAVEL_TIME_INFEASIBLE` x29, `EDGE_MISSING` x8, `ROUTE_START_MISMATCH` x7,
+  `MACHINE_OVERLAP` x5, `PRECEDENCE_VIOLATED` x3, plus 8 others.
+
+**What the numbers show**
+
+- **The suite separates planners.** The baselines saturate, but the two LLMs land far
+  apart, and difficulty rises with tier. That is the behaviour a benchmark needs.
+- **The repair loop matters.** gemma4:12b goes from 40% to 90% feasible once it sees the
+  typed violations. Most of its first-attempt errors are travel-time arithmetic (starting a
+  task before the machine can arrive), which feedback fixes in one or two rounds. It never
+  solved h01_harvest_chain: it broke the battery reserve on every attempt.
+- **No hallucinated ids from either model.** Every machine, task and zone id came from
+  the scenario. With JSON-schema-constrained output, errors are in reasoning, not references.
+- **Infeasibility detection has two sides.** Both models flagged all 5 impossible
+  scenarios, with correct reasons. qwen3.5:9b also gave up on 5 *feasible* ones (including
+  the mid-mission replan), so its precision is 50%. A planner that says "infeasible" too
+  readily looks good on recall alone.
+- **Makespan gap only covers valid plans.** qwen3.5:9b's +73% comes from 2 plans, so
+  treat it as noise. gemma4:12b's -6% means its valid plans were slightly shorter than the
+  greedy reference; OR-Tools is shorter still (-14.5%).
+
+**Caveats.** One run per model, at temperature 0 with a fixed seed. Models are 4-bit
+quantized (Q4_K_M) and were served by a self-hosted Ollama server with partial GPU offload,
+so latency reflects that server, not the models. qwen3.5:9b is a thinking model, but thinking
+was disabled, because Ollama constrains the reasoning to the output schema when `format` is
+set. Results with thinking enabled may differ. The reference plans and both baselines were
+developed alongside these scenarios, so the baselines' 100% shows the scenarios are
+solvable, not that they are easy.
 
 ## Related work
 
@@ -290,7 +328,8 @@ This project builds on ideas from the following work. No code was copied from an
   Passing says nothing about real-world safety and must never be used as a safety gate
   for physical equipment.
 - Scenarios are small, hand-written and synthetic. They are not calibrated against real
-  operations, and the baselines were tuned alongside them.
+  operations, and the baselines were tuned alongside them. LLM results come from single
+  runs of two small open-weight models.
 - Charging is modelled as charge-to-a-level at a station on the route. Energy spent while
   working on a task is not modelled.
 - Single-lane conflict checking (v0.2) is experimental and opt-in. It assumes machines

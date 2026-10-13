@@ -10,6 +10,7 @@ import typer
 
 from fleet_plan_bench.bench import (
     compute_metrics,
+    load_episodes,
     markdown_report,
     markdown_table,
     run_benchmark,
@@ -146,6 +147,23 @@ def bench(
         max_repairs=max_repairs,
         progress=lambda line: typer.echo(line, err=True),
     )
+    metrics = compute_metrics(episodes)
+    out.mkdir(parents=True, exist_ok=True)
+    write_results(out / "results.json", episodes, metrics)
+    (out / "results.md").write_text(markdown_report(episodes, metrics))
+    typer.echo(markdown_table(metrics))
+    typer.echo(f"\nwrote {out / 'results.json'} and {out / 'results.md'}")
+
+
+@app.command("merge")
+def merge(
+    results: Annotated[
+        list[Path], typer.Argument(help="results.json files from separate runs.", exists=True)
+    ],
+    out: Annotated[Path, typer.Option(help="Output directory.")] = Path("results/merged"),
+) -> None:
+    """Merge results.json files (e.g. one per model) into one report."""
+    episodes = [e for path in results for e in load_episodes(path)]
     metrics = compute_metrics(episodes)
     out.mkdir(parents=True, exist_ok=True)
     write_results(out / "results.json", episodes, metrics)

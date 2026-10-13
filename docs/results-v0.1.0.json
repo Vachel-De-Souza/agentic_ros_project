@@ -1,0 +1,1921 @@
+{
+  "fleet_plan_bench_version": "0.1.0",
+  "metrics": [
+    {
+      "planner": "greedy",
+      "episodes": 15,
+      "infra_failed_episodes": 0,
+      "feasible_episodes": 10,
+      "infeasible_episodes": 5,
+      "first_attempt_feasibility": 1.0,
+      "post_repair_feasibility": 1.0,
+      "repair_success": null,
+      "mean_attempts": 1.0,
+      "hallucinated_reference_rate": 0.0,
+      "infeasibility_precision": 1.0,
+      "infeasibility_recall": 1.0,
+      "false_infeasible": 0,
+      "makespan_gap_vs_reference": 0.0,
+      "violations_first_attempt": {},
+      "violations_all_attempts": {},
+      "mean_input_tokens": null,
+      "mean_output_tokens": null,
+      "mean_latency_s": null,
+      "by_tier": {
+        "easy": {
+          "first_attempt_feasibility": 1.0,
+          "post_repair_feasibility": 1.0,
+          "infeasibility_recall": 1.0
+        },
+        "medium": {
+          "first_attempt_feasibility": 1.0,
+          "post_repair_feasibility": 1.0,
+          "infeasibility_recall": 1.0
+        },
+        "hard": {
+          "first_attempt_feasibility": 1.0,
+          "post_repair_feasibility": 1.0,
+          "infeasibility_recall": 1.0
+        }
+      }
+    },
+    {
+      "planner": "ortools",
+      "episodes": 15,
+      "infra_failed_episodes": 0,
+      "feasible_episodes": 10,
+      "infeasible_episodes": 5,
+      "first_attempt_feasibility": 1.0,
+      "post_repair_feasibility": 1.0,
+      "repair_success": null,
+      "mean_attempts": 1.0,
+      "hallucinated_reference_rate": 0.0,
+      "infeasibility_precision": 1.0,
+      "infeasibility_recall": 1.0,
+      "false_infeasible": 0,
+      "makespan_gap_vs_reference": -0.14514533268333316,
+      "violations_first_attempt": {},
+      "violations_all_attempts": {},
+      "mean_input_tokens": null,
+      "mean_output_tokens": null,
+      "mean_latency_s": null,
+      "by_tier": {
+        "easy": {
+          "first_attempt_feasibility": 1.0,
+          "post_repair_feasibility": 1.0,
+          "infeasibility_recall": 1.0
+        },
+        "medium": {
+          "first_attempt_feasibility": 1.0,
+          "post_repair_feasibility": 1.0,
+          "infeasibility_recall": 1.0
+        },
+        "hard": {
+          "first_attempt_feasibility": 1.0,
+          "post_repair_feasibility": 1.0,
+          "infeasibility_recall": 1.0
+        }
+      }
+    },
+    {
+      "planner": "ollama:gemma4:12b",
+      "episodes": 15,
+      "infra_failed_episodes": 0,
+      "feasible_episodes": 10,
+      "infeasible_episodes": 5,
+      "first_attempt_feasibility": 0.4,
+      "post_repair_feasibility": 0.9,
+      "repair_success": 0.8333333333333334,
+      "mean_attempts": 1.6,
+      "hallucinated_reference_rate": 0.0,
+      "infeasibility_precision": 1.0,
+      "infeasibility_recall": 1.0,
+      "false_infeasible": 0,
+      "makespan_gap_vs_reference": -0.061488239928186035,
+      "violations_first_attempt": {
+        "EDGE_MISSING": 4,
+        "ENERGY_DEPLETED": 1,
+        "RESERVE_VIOLATED": 1,
+        "TRAVEL_TIME_INFEASIBLE": 13
+      },
+      "violations_all_attempts": {
+        "EDGE_MISSING": 5,
+        "ENERGY_DEPLETED": 2,
+        "RESERVE_VIOLATED": 3,
+        "TRAVEL_TIME_INFEASIBLE": 13
+      },
+      "mean_input_tokens": 2213.0,
+      "mean_output_tokens": 343.0,
+      "mean_latency_s": 91.4355966349584,
+      "by_tier": {
+        "easy": {
+          "first_attempt_feasibility": 1.0,
+          "post_repair_feasibility": 1.0,
+          "infeasibility_recall": 1.0
+        },
+        "medium": {
+          "first_attempt_feasibility": 0.3333333333333333,
+          "post_repair_feasibility": 1.0,
+          "infeasibility_recall": 1.0
+        },
+        "hard": {
+          "first_attempt_feasibility": 0.0,
+          "post_repair_feasibility": 0.75,
+          "infeasibility_recall": 1.0
+        }
+      }
+    },
+    {
+      "planner": "ollama:qwen3.5:9b",
+      "episodes": 15,
+      "infra_failed_episodes": 0,
+      "feasible_episodes": 10,
+      "infeasible_episodes": 5,
+      "first_attempt_feasibility": 0.0,
+      "post_repair_feasibility": 0.2,
+      "repair_success": 0.25,
+      "mean_attempts": 2.2666666666666666,
+      "hallucinated_reference_rate": 0.0,
+      "infeasibility_precision": 0.5,
+      "infeasibility_recall": 1.0,
+      "false_infeasible": 5,
+      "makespan_gap_vs_reference": 0.7329276538201488,
+      "violations_first_attempt": {
+        "EDGE_MISSING": 8,
+        "ENERGY_DEPLETED": 2,
+        "MACHINE_OVERLAP": 5,
+        "NO_GO_ZONE": 1,
+        "PRECEDENCE_VIOLATED": 3,
+        "RESERVE_VIOLATED": 1,
+        "ROUTE_END_MISMATCH": 1,
+        "ROUTE_START_MISMATCH": 7,
+        "TASK_DUPLICATED": 1,
+        "TASK_UNASSIGNED": 1,
+        "TIME_WINDOW_VIOLATED": 1,
+        "TRAVEL_TIME_INFEASIBLE": 29
+      },
+      "violations_all_attempts": {
+        "EDGE_MISSING": 17,
+        "ENERGY_DEPLETED": 2,
+        "MACHINE_OVERLAP": 7,
+        "NO_GO_ZONE": 1,
+        "PRECEDENCE_VIOLATED": 4,
+        "RESERVE_VIOLATED": 1,
+        "ROUTE_END_MISMATCH": 3,
+        "ROUTE_START_MISMATCH": 9,
+        "TASK_DUPLICATED": 3,
+        "TASK_UNASSIGNED": 1,
+        "TIME_WINDOW_VIOLATED": 1,
+        "TRAVEL_TIME_INFEASIBLE": 53
+      },
+      "mean_input_tokens": 2188.0588235294117,
+      "mean_output_tokens": 438.94117647058823,
+      "mean_latency_s": 72.62234665497044,
+      "by_tier": {
+        "easy": {
+          "first_attempt_feasibility": 0.0,
+          "post_repair_feasibility": 0.3333333333333333,
+          "infeasibility_recall": 1.0
+        },
+        "medium": {
+          "first_attempt_feasibility": 0.0,
+          "post_repair_feasibility": 0.3333333333333333,
+          "infeasibility_recall": 1.0
+        },
+        "hard": {
+          "first_attempt_feasibility": 0.0,
+          "post_repair_feasibility": 0.0,
+          "infeasibility_recall": 1.0
+        }
+      }
+    }
+  ],
+  "episodes": [
+    {
+      "planner": "greedy",
+      "scenario_id": "e01_orchard_mowing",
+      "tier": "easy",
+      "domain": "agriculture",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 25.5,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 25.5,
+          "reason": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "greedy",
+      "scenario_id": "e02_quarry_haul",
+      "tier": "easy",
+      "domain": "mining",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 23.0,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 23.0,
+          "reason": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "greedy",
+      "scenario_id": "e03_site_grading",
+      "tier": "easy",
+      "domain": "construction",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 56.668,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 56.668,
+          "reason": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "greedy",
+      "scenario_id": "e04_spray_without_sprayer",
+      "tier": "easy",
+      "domain": "agriculture",
+      "perturbed": false,
+      "ground_truth_feasible": false,
+      "reference_makespan": null,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "no machine has capability 'spray' needed by spray_a",
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "greedy",
+      "scenario_id": "m01_mixed_farm",
+      "tier": "medium",
+      "domain": "agriculture",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 75.0,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 75.0,
+          "reason": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "greedy",
+      "scenario_id": "m02_construction_earthworks",
+      "tier": "medium",
+      "domain": "construction",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 110.2,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 110.2,
+          "reason": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "greedy",
+      "scenario_id": "m03_mine_bench",
+      "tier": "medium",
+      "domain": "mining",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 207.8,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 207.8,
+          "reason": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "greedy",
+      "scenario_id": "m04_vent_shaft_out_of_range",
+      "tier": "medium",
+      "domain": "mining",
+      "perturbed": false,
+      "ground_truth_feasible": false,
+      "reference_makespan": null,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "greedy search found no machine that can reach and finish deliver_filters in time",
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "greedy",
+      "scenario_id": "m05_precast_overweight",
+      "tier": "medium",
+      "domain": "construction",
+      "perturbed": false,
+      "ground_truth_feasible": false,
+      "reference_makespan": null,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "task deliver_beam payload 30 exceeds every capable machine",
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "greedy",
+      "scenario_id": "h01_harvest_chain",
+      "tier": "hard",
+      "domain": "agriculture",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 118.72,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 118.72,
+          "reason": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "greedy",
+      "scenario_id": "h02_single_lane_ramp",
+      "tier": "hard",
+      "domain": "mining",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 207.12,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 207.12,
+          "reason": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "greedy",
+      "scenario_id": "h03_pour_deadline",
+      "tier": "hard",
+      "domain": "construction",
+      "perturbed": false,
+      "ground_truth_feasible": false,
+      "reference_makespan": null,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "greedy search found no machine that can reach and finish inspect_east in time",
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "greedy",
+      "scenario_id": "h04_flooded_drift",
+      "tier": "hard",
+      "domain": "mining",
+      "perturbed": false,
+      "ground_truth_feasible": false,
+      "reference_makespan": null,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "task bolt_3 zone stope_3 is unreachable without entering no-go areas",
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "greedy",
+      "scenario_id": "h05_excavator_breakdown",
+      "tier": "hard",
+      "domain": "construction",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 104.2,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 104.2,
+          "reason": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "greedy",
+      "scenario_id": "h05_excavator_breakdown@machine_failure",
+      "tier": "hard",
+      "domain": "construction",
+      "perturbed": true,
+      "ground_truth_feasible": true,
+      "reference_makespan": 170.2,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 170.2,
+          "reason": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "ortools",
+      "scenario_id": "e01_orchard_mowing",
+      "tier": "easy",
+      "domain": "agriculture",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 25.5,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 25.5,
+          "reason": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "ortools",
+      "scenario_id": "e02_quarry_haul",
+      "tier": "easy",
+      "domain": "mining",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 23.0,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 23.0,
+          "reason": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "ortools",
+      "scenario_id": "e03_site_grading",
+      "tier": "easy",
+      "domain": "construction",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 56.668,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 44.334,
+          "reason": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "ortools",
+      "scenario_id": "e04_spray_without_sprayer",
+      "tier": "easy",
+      "domain": "agriculture",
+      "perturbed": false,
+      "ground_truth_feasible": false,
+      "reference_makespan": null,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "no machine has capability 'spray' needed by spray_a",
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "ortools",
+      "scenario_id": "m01_mixed_farm",
+      "tier": "medium",
+      "domain": "agriculture",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 75.0,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 68.0,
+          "reason": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "ortools",
+      "scenario_id": "m02_construction_earthworks",
+      "tier": "medium",
+      "domain": "construction",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 110.2,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 93.0,
+          "reason": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "ortools",
+      "scenario_id": "m03_mine_bench",
+      "tier": "medium",
+      "domain": "mining",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 207.8,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 207.8,
+          "reason": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "ortools",
+      "scenario_id": "m04_vent_shaft_out_of_range",
+      "tier": "medium",
+      "domain": "mining",
+      "perturbed": false,
+      "ground_truth_feasible": false,
+      "reference_makespan": null,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "hauler_1 cannot reach vent_shaft for task deliver_filters within its energy reserve, even with a charging detour",
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "ortools",
+      "scenario_id": "m05_precast_overweight",
+      "tier": "medium",
+      "domain": "construction",
+      "perturbed": false,
+      "ground_truth_feasible": false,
+      "reference_makespan": null,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "task deliver_beam payload 30 exceeds every capable machine",
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "ortools",
+      "scenario_id": "h01_harvest_chain",
+      "tier": "hard",
+      "domain": "agriculture",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 118.72,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 98.667,
+          "reason": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "ortools",
+      "scenario_id": "h02_single_lane_ramp",
+      "tier": "hard",
+      "domain": "mining",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 207.12,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 138.0,
+          "reason": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "ortools",
+      "scenario_id": "h03_pour_deadline",
+      "tier": "hard",
+      "domain": "construction",
+      "perturbed": false,
+      "ground_truth_feasible": false,
+      "reference_makespan": null,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "CP-SAT proved that no assignment satisfies capability, reachability, precedence and time windows (energy relaxed)",
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "ortools",
+      "scenario_id": "h04_flooded_drift",
+      "tier": "hard",
+      "domain": "mining",
+      "perturbed": false,
+      "ground_truth_feasible": false,
+      "reference_makespan": null,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "task bolt_3 zone stope_3 is unreachable without entering no-go areas",
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "ortools",
+      "scenario_id": "h05_excavator_breakdown",
+      "tier": "hard",
+      "domain": "construction",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 104.2,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 78.0,
+          "reason": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "ortools",
+      "scenario_id": "h05_excavator_breakdown@machine_failure",
+      "tier": "hard",
+      "domain": "construction",
+      "perturbed": true,
+      "ground_truth_feasible": true,
+      "reference_makespan": 170.2,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 131.0,
+          "reason": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "latency_s": null
+        }
+      ]
+    },
+    {
+      "planner": "ollama:gemma4:12b",
+      "scenario_id": "e01_orchard_mowing",
+      "tier": "easy",
+      "domain": "agriculture",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 25.5,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 25.5,
+          "reason": null,
+          "input_tokens": 1684,
+          "output_tokens": 238,
+          "latency_s": 40.856541500000276
+        }
+      ]
+    },
+    {
+      "planner": "ollama:gemma4:12b",
+      "scenario_id": "e02_quarry_haul",
+      "tier": "easy",
+      "domain": "mining",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 23.0,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 23.0,
+          "reason": null,
+          "input_tokens": 1881,
+          "output_tokens": 335,
+          "latency_s": 108.42655240500017
+        }
+      ]
+    },
+    {
+      "planner": "ollama:gemma4:12b",
+      "scenario_id": "e03_site_grading",
+      "tier": "easy",
+      "domain": "construction",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 56.668,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 47.333333333333336,
+          "reason": null,
+          "input_tokens": 2047,
+          "output_tokens": 416,
+          "latency_s": 127.88454592500011
+        }
+      ]
+    },
+    {
+      "planner": "ollama:gemma4:12b",
+      "scenario_id": "e04_spray_without_sprayer",
+      "tier": "easy",
+      "domain": "agriculture",
+      "perturbed": false,
+      "ground_truth_feasible": false,
+      "reference_makespan": null,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "Task 'spray_a' requires capability 'spray', but no machine in the fleet possesses this capability.",
+          "input_tokens": 1398,
+          "output_tokens": 46,
+          "latency_s": 50.18104250100032
+        }
+      ]
+    },
+    {
+      "planner": "ollama:gemma4:12b",
+      "scenario_id": "m01_mixed_farm",
+      "tier": "medium",
+      "domain": "agriculture",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 75.0,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 74.0,
+          "reason": null,
+          "input_tokens": 2098,
+          "output_tokens": 291,
+          "latency_s": 106.60905757
+        }
+      ]
+    },
+    {
+      "planner": "ollama:gemma4:12b",
+      "scenario_id": "m02_construction_earthworks",
+      "tier": "medium",
+      "domain": "construction",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 110.2,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "invalid_plan",
+          "violations": {
+            "TRAVEL_TIME_INFEASIBLE": 2
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 1976,
+          "output_tokens": 317,
+          "latency_s": 99.08526578099963
+        },
+        {
+          "attempt": 1,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 122.0,
+          "reason": null,
+          "input_tokens": 2365,
+          "output_tokens": 310,
+          "latency_s": 65.72549342599996
+        }
+      ]
+    },
+    {
+      "planner": "ollama:gemma4:12b",
+      "scenario_id": "m03_mine_bench",
+      "tier": "medium",
+      "domain": "mining",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 207.8,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "invalid_plan",
+          "violations": {
+            "ENERGY_DEPLETED": 1,
+            "TRAVEL_TIME_INFEASIBLE": 2
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2196,
+          "output_tokens": 397,
+          "latency_s": 118.35330009600011
+        },
+        {
+          "attempt": 1,
+          "outcome": "invalid_plan",
+          "violations": {
+            "ENERGY_DEPLETED": 1
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2707,
+          "output_tokens": 398,
+          "latency_s": 84.94541808000031
+        },
+        {
+          "attempt": 2,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 225.0,
+          "reason": null,
+          "input_tokens": 2593,
+          "output_tokens": 406,
+          "latency_s": 80.41684235000002
+        }
+      ]
+    },
+    {
+      "planner": "ollama:gemma4:12b",
+      "scenario_id": "m04_vent_shaft_out_of_range",
+      "tier": "medium",
+      "domain": "mining",
+      "perturbed": false,
+      "ground_truth_feasible": false,
+      "reference_makespan": null,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "The distance from 'crosscut' to 'vent_shaft' via 'far_drift' is 40 units (25+15). The total distance from 'depot' to 'vent_shaft' is 60 units. With a battery capacity of 50 and a 10% safety buffer (5 units), the usable range is 45 units. The hauler cannot reach 'vent_shaft' from 'depot' or 'crosscut' without a charging stop, but the only charging station is at 'depot'.",
+          "input_tokens": 1283,
+          "output_tokens": 134,
+          "latency_s": 49.64885476600011
+        }
+      ]
+    },
+    {
+      "planner": "ollama:gemma4:12b",
+      "scenario_id": "m05_precast_overweight",
+      "tier": "medium",
+      "domain": "construction",
+      "perturbed": false,
+      "ground_truth_feasible": false,
+      "reference_makespan": null,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "Task 'deliver_beam' requires a payload_capacity of 30.0, but the maximum available capacity among machines with the 'haul' capability is 25.0 (flatbed_1).",
+          "input_tokens": 1555,
+          "output_tokens": 69,
+          "latency_s": 45.3836304790002
+        }
+      ]
+    },
+    {
+      "planner": "ollama:gemma4:12b",
+      "scenario_id": "h01_harvest_chain",
+      "tier": "hard",
+      "domain": "agriculture",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 118.72,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "invalid_plan",
+          "violations": {
+            "RESERVE_VIOLATED": 1,
+            "TRAVEL_TIME_INFEASIBLE": 4
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2497,
+          "output_tokens": 503,
+          "latency_s": 144.64939111000012
+        },
+        {
+          "attempt": 1,
+          "outcome": "invalid_plan",
+          "violations": {
+            "RESERVE_VIOLATED": 1
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 3198,
+          "output_tokens": 505,
+          "latency_s": 111.436843512
+        },
+        {
+          "attempt": 2,
+          "outcome": "invalid_plan",
+          "violations": {
+            "RESERVE_VIOLATED": 1
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2985,
+          "output_tokens": 543,
+          "latency_s": 106.44790307999983
+        }
+      ]
+    },
+    {
+      "planner": "ollama:gemma4:12b",
+      "scenario_id": "h02_single_lane_ramp",
+      "tier": "hard",
+      "domain": "mining",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 207.12,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "invalid_plan",
+          "violations": {
+            "TRAVEL_TIME_INFEASIBLE": 1
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2254,
+          "output_tokens": 491,
+          "latency_s": 135.62988186100029
+        },
+        {
+          "attempt": 1,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 164.0,
+          "reason": null,
+          "input_tokens": 2728,
+          "output_tokens": 492,
+          "latency_s": 100.60693302699929
+        }
+      ]
+    },
+    {
+      "planner": "ollama:gemma4:12b",
+      "scenario_id": "h03_pour_deadline",
+      "tier": "hard",
+      "domain": "construction",
+      "perturbed": false,
+      "ground_truth_feasible": false,
+      "reference_makespan": null,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "The task 'inspect_east' has a time window ending at 25.0. However, the preceding tasks 'formwork_east' (duration 10) and 'pour_east' (duration 10) take a total of 20 units of time. When including the minimum required time for the 'inspect_east' task itself (duration 10), the total time required for the chain is 30 units, which exceeds the 25.0 deadline.",
+          "input_tokens": 1572,
+          "output_tokens": 128,
+          "latency_s": 54.50782206299937
+        }
+      ]
+    },
+    {
+      "planner": "ollama:gemma4:12b",
+      "scenario_id": "h04_flooded_drift",
+      "tier": "hard",
+      "domain": "mining",
+      "perturbed": false,
+      "ground_truth_feasible": false,
+      "reference_makespan": null,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "Task bolt_3 is located in stope_3, which is only accessible via flooded_drift (marked as no_go) or via an edge from stope_2 to stope_3 (marked as no_go).",
+          "input_tokens": 1721,
+          "output_tokens": 74,
+          "latency_s": 49.54537239000001
+        }
+      ]
+    },
+    {
+      "planner": "ollama:gemma4:12b",
+      "scenario_id": "h05_excavator_breakdown",
+      "tier": "hard",
+      "domain": "construction",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 104.2,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "invalid_plan",
+          "violations": {
+            "EDGE_MISSING": 1,
+            "TRAVEL_TIME_INFEASIBLE": 2
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2340,
+          "output_tokens": 516,
+          "latency_s": 144.7318724480001
+        },
+        {
+          "attempt": 1,
+          "outcome": "invalid_plan",
+          "violations": {
+            "EDGE_MISSING": 1
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2914,
+          "output_tokens": 516,
+          "latency_s": 104.22176688699983
+        },
+        {
+          "attempt": 2,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 91.0,
+          "reason": null,
+          "input_tokens": 2814,
+          "output_tokens": 552,
+          "latency_s": 106.64750772200023
+        }
+      ]
+    },
+    {
+      "planner": "ollama:gemma4:12b",
+      "scenario_id": "h05_excavator_breakdown@machine_failure",
+      "tier": "hard",
+      "domain": "construction",
+      "perturbed": true,
+      "ground_truth_feasible": true,
+      "reference_makespan": 170.2,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "invalid_plan",
+          "violations": {
+            "EDGE_MISSING": 3,
+            "TRAVEL_TIME_INFEASIBLE": 2
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 1933,
+          "output_tokens": 272,
+          "latency_s": 92.88117242200042
+        },
+        {
+          "attempt": 1,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 131.0,
+          "reason": null,
+          "input_tokens": 2373,
+          "output_tokens": 283,
+          "latency_s": 65.6313078380008
+        }
+      ]
+    },
+    {
+      "planner": "ollama:qwen3.5:9b",
+      "scenario_id": "e01_orchard_mowing",
+      "tier": "easy",
+      "domain": "agriculture",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 25.5,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "invalid_plan",
+          "violations": {
+            "TASK_DUPLICATED": 1,
+            "TRAVEL_TIME_INFEASIBLE": 5
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 1613,
+          "output_tokens": 421,
+          "latency_s": 78.41334470899983
+        },
+        {
+          "attempt": 1,
+          "outcome": "invalid_plan",
+          "violations": {
+            "TASK_DUPLICATED": 1,
+            "TRAVEL_TIME_INFEASIBLE": 3
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2148,
+          "output_tokens": 421,
+          "latency_s": 71.83620270399933
+        },
+        {
+          "attempt": 2,
+          "outcome": "invalid_plan",
+          "violations": {
+            "TASK_DUPLICATED": 1,
+            "TRAVEL_TIME_INFEASIBLE": 1
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2056,
+          "output_tokens": 421,
+          "latency_s": 61.10925738199967
+        },
+        {
+          "attempt": 3,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 62.0,
+          "reason": null,
+          "input_tokens": 1956,
+          "output_tokens": 343,
+          "latency_s": 50.392327945000034
+        }
+      ]
+    },
+    {
+      "planner": "ollama:qwen3.5:9b",
+      "scenario_id": "e02_quarry_haul",
+      "tier": "easy",
+      "domain": "mining",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 23.0,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "invalid_plan",
+          "violations": {
+            "EDGE_MISSING": 1,
+            "TRAVEL_TIME_INFEASIBLE": 4
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 1816,
+          "output_tokens": 385,
+          "latency_s": 74.45225245399979
+        },
+        {
+          "attempt": 1,
+          "outcome": "invalid_plan",
+          "violations": {
+            "EDGE_MISSING": 1,
+            "TRAVEL_TIME_INFEASIBLE": 1
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2299,
+          "output_tokens": 427,
+          "latency_s": 74.0316427859998
+        },
+        {
+          "attempt": 2,
+          "outcome": "invalid_plan",
+          "violations": {
+            "EDGE_MISSING": 1,
+            "TRAVEL_TIME_INFEASIBLE": 2
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2170,
+          "output_tokens": 433,
+          "latency_s": 62.37986907999948
+        },
+        {
+          "attempt": 3,
+          "outcome": "invalid_plan",
+          "violations": {
+            "EDGE_MISSING": 1,
+            "TRAVEL_TIME_INFEASIBLE": 1
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2237,
+          "output_tokens": 432,
+          "latency_s": 67.20585199099969
+        }
+      ]
+    },
+    {
+      "planner": "ollama:qwen3.5:9b",
+      "scenario_id": "e03_site_grading",
+      "tier": "easy",
+      "domain": "construction",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 56.668,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "invalid_plan",
+          "violations": {
+            "TRAVEL_TIME_INFEASIBLE": 5
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 1979,
+          "output_tokens": 519,
+          "latency_s": 90.91583614199953
+        },
+        {
+          "attempt": 1,
+          "outcome": "invalid_plan",
+          "violations": {
+            "MACHINE_OVERLAP": 1,
+            "TRAVEL_TIME_INFEASIBLE": 3
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2607,
+          "output_tokens": 549,
+          "latency_s": 86.2892362980001
+        },
+        {
+          "attempt": 2,
+          "outcome": "invalid_plan",
+          "violations": {
+            "TRAVEL_TIME_INFEASIBLE": 4
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2574,
+          "output_tokens": 629,
+          "latency_s": 85.70208413199998
+        },
+        {
+          "attempt": 3,
+          "outcome": "invalid_plan",
+          "violations": {
+            "ROUTE_END_MISMATCH": 1,
+            "TRAVEL_TIME_INFEASIBLE": 1
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2679,
+          "output_tokens": 531,
+          "latency_s": 80.16042549799931
+        }
+      ]
+    },
+    {
+      "planner": "ollama:qwen3.5:9b",
+      "scenario_id": "e04_spray_without_sprayer",
+      "tier": "easy",
+      "domain": "agriculture",
+      "perturbed": false,
+      "ground_truth_feasible": false,
+      "reference_makespan": null,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "Task 'spray_a' requires capability 'spray', but neither machine ('mower_1' nor 'mower_2') possesses this capability (they only have 'mow').",
+          "input_tokens": 1348,
+          "output_tokens": 63,
+          "latency_s": 28.78818725400015
+        }
+      ]
+    },
+    {
+      "planner": "ollama:qwen3.5:9b",
+      "scenario_id": "m01_mixed_farm",
+      "tier": "medium",
+      "domain": "agriculture",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 75.0,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "invalid_plan",
+          "violations": {
+            "ROUTE_END_MISMATCH": 1,
+            "TASK_UNASSIGNED": 1,
+            "TRAVEL_TIME_INFEASIBLE": 2
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2016,
+          "output_tokens": 348,
+          "latency_s": 66.63550312200005
+        },
+        {
+          "attempt": 1,
+          "outcome": "invalid_plan",
+          "violations": {
+            "ROUTE_END_MISMATCH": 1,
+            "TRAVEL_TIME_INFEASIBLE": 1
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2389,
+          "output_tokens": 426,
+          "latency_s": 70.97733450899977
+        },
+        {
+          "attempt": 2,
+          "outcome": "invalid_plan",
+          "violations": {
+            "EDGE_MISSING": 1
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2362,
+          "output_tokens": 432,
+          "latency_s": 68.17089968399978
+        },
+        {
+          "attempt": 3,
+          "outcome": "invalid_plan",
+          "violations": {
+            "EDGE_MISSING": 1
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2308,
+          "output_tokens": 388,
+          "latency_s": 57.89416524599983
+        }
+      ]
+    },
+    {
+      "planner": "ollama:qwen3.5:9b",
+      "scenario_id": "m02_construction_earthworks",
+      "tier": "medium",
+      "domain": "construction",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 110.2,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "invalid_plan",
+          "violations": {
+            "ROUTE_START_MISMATCH": 1,
+            "TRAVEL_TIME_INFEASIBLE": 3
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 1900,
+          "output_tokens": 430,
+          "latency_s": 72.48788780599989
+        },
+        {
+          "attempt": 1,
+          "outcome": "invalid_plan",
+          "violations": {
+            "PRECEDENCE_VIOLATED": 1,
+            "TRAVEL_TIME_INFEASIBLE": 1
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2355,
+          "output_tokens": 471,
+          "latency_s": 75.46040218399958
+        },
+        {
+          "attempt": 2,
+          "outcome": "invalid_plan",
+          "violations": {
+            "TRAVEL_TIME_INFEASIBLE": 3
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2288,
+          "output_tokens": 232,
+          "latency_s": 43.93425485999978
+        },
+        {
+          "attempt": 3,
+          "outcome": "valid_plan",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": 114.0,
+          "reason": null,
+          "input_tokens": 2332,
+          "output_tokens": 472,
+          "latency_s": 67.90709446899928
+        }
+      ]
+    },
+    {
+      "planner": "ollama:qwen3.5:9b",
+      "scenario_id": "m03_mine_bench",
+      "tier": "medium",
+      "domain": "mining",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 207.8,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "invalid_plan",
+          "violations": {
+            "EDGE_MISSING": 2,
+            "ENERGY_DEPLETED": 2,
+            "PRECEDENCE_VIOLATED": 1,
+            "RESERVE_VIOLATED": 1,
+            "TRAVEL_TIME_INFEASIBLE": 4
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2103,
+          "output_tokens": 678,
+          "latency_s": 103.26792160500008
+        },
+        {
+          "attempt": 1,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "The mission is infeasible due to energy constraints and missing edges. Specifically: 1) The edge between 'decline_2' and 'tip' does not exist in the provided site graph, making it impossible for haul trucks to reach the tip zone from the bench zones. 2) Even if that edge existed, the drill rig (drill_rig_1) starts with 0 energy (initial_energy: null implies full battery? No, rule says 'full battery if null', but let's re-read carefully: 'machines start with initial_energy (or a full battery if null)'. So drill_rig_1 starts at 100. However, the route to bench_a is 35+30+15=80 distance. Cost = 80 * 1.2 = 96. Remaining energy = 4. This is below the 10% reserve (10). The machine cannot complete the first leg without violating the reserve constraint unless it charges at a station on the way. There are no charging stations between portal and bench_a (only at portal and decline_2). Thus, drill_rig_1 cannot reach bench_a legally. Similarly, loader_1 fails energy constraints.",
+          "input_tokens": 2925,
+          "output_tokens": 279,
+          "latency_s": 66.17547330899924
+        }
+      ]
+    },
+    {
+      "planner": "ollama:qwen3.5:9b",
+      "scenario_id": "m04_vent_shaft_out_of_range",
+      "tier": "medium",
+      "domain": "mining",
+      "perturbed": false,
+      "ground_truth_feasible": false,
+      "reference_makespan": null,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "The single machine 'hauler_1' cannot complete the mission because it lacks sufficient energy to travel from the depot to the vent_shaft without recharging, and the only charging station is at the depot. The route requires traversing edges with a total distance of 60.0 (depot->crosscut:20 + crosscut->far_drift:25 + far_drift->vent_shaft:15). At 2.0 speed, this takes 30.0 hours. Energy consumption is 60.0 * 1.0 = 60.0 units. The battery capacity is only 50.0 units. Even if the machine could magically start with more energy (which it cannot), it would run out of power before reaching the task zone. Since there are no intermediate charging stations, the mission is impossible.",
+          "input_tokens": 1244,
+          "output_tokens": 204,
+          "latency_s": 36.42953791000036
+        }
+      ]
+    },
+    {
+      "planner": "ollama:qwen3.5:9b",
+      "scenario_id": "m05_precast_overweight",
+      "tier": "medium",
+      "domain": "construction",
+      "perturbed": false,
+      "ground_truth_feasible": false,
+      "reference_makespan": null,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "Task 'deliver_beam' requires payload_capacity >= 30.0, but the maximum available capacity among machines with 'haul' capability is 25.0 (flatbed_1) and 20.0 (flatbed_2). The telehandler has a capacity of 8.0. No machine can satisfy the payload demand.",
+          "input_tokens": 1495,
+          "output_tokens": 94,
+          "latency_s": 33.86203230299998
+        }
+      ]
+    },
+    {
+      "planner": "ollama:qwen3.5:9b",
+      "scenario_id": "h01_harvest_chain",
+      "tier": "hard",
+      "domain": "agriculture",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 118.72,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "invalid_plan",
+          "violations": {
+            "EDGE_MISSING": 1,
+            "MACHINE_OVERLAP": 4,
+            "NO_GO_ZONE": 1,
+            "ROUTE_START_MISMATCH": 4,
+            "TIME_WINDOW_VIOLATED": 1,
+            "TRAVEL_TIME_INFEASIBLE": 2
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2387,
+          "output_tokens": 727,
+          "latency_s": 122.96103967099953
+        },
+        {
+          "attempt": 1,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "The mission is infeasible due to the precedence constraints combined with travel times and machine availability. Specifically, task 'harvest_e' has a time window [20, 120], requiring it to start at t >= 20. However, its predecessor 'harvest_w' (and consequently 'cart_e') must be completed before 'cart_e' can run, and 'cart_e' precedes 'store_e'. The critical path for the East side is: Harvest_E -> Cart_E -> Store_E. Even if we ignore the West side, 'harvest_e' cannot start until t=20. If combine_2 starts at t=0, it arrives at field_e at t=15.33 (distance 6+8+9=22 / speed 1.5). It can wait until t=20 to start the task. However, the validator errors indicate a fundamental conflict in the previous attempt where machines were assigned tasks before their predecessors finished or before they could physically arrive. More critically, looking at the West side: 'harvest_w' (no window) -> 'cart_w' -> 'store_w'. And 'bale_w' depends on 'harvest_w'. The East side has a hard start constraint (t=20). If we try to parallelize, we must ensure machines are positioned correctly. The previous attempt failed because it assumed machines could teleport or start tasks before predecessors finished. A valid plan requires: 1. Combine_2 waits at field_e until t=20 for harvest_e. 2. Grain_cart_1 must finish cart_w (West) before starting cart_e (East). Since 'cart_w' depends on 'harvest_w', and 'harvest_w' has no window, it can run anytime. However, 'grain_cart_1' is the only hauler. It cannot do West tasks and East tasks simultaneously without overlapping or waiting. If it does West first: Harvest_W (40) + Travel to W (12.67) = 52.67. Then Cart_W (10) = 62.67. Then Travel to E (via creek? No, creek is no-go). Wait, path from field_w to field_e: field_w -> headland -> lane -> yard -> lane -> headland -> field_e? Or field_w -> creek -> field_e? Creek is no-go. So path is field_w -> headland -> lane -> yard -> lane -> headland -> field_e. Distance: 5+8+6+6+8 = 33km. Time at 2.5mph = 13.2h. Total time for West chain ~76h. Then travel to East takes 13.2h. Start East tasks at t=90+. Harvest_E needs start >= 20. This is fine. BUT, the previous error log shows 'grain_cart_1' trying to do cart_e (East) while still doing cart_w (West) or vice versa with overlaps. The specific error 'MACHINE_OVERLAP: grain_cart_1 works on cart_e until t=55 but starts cart_w at t=46' implies the planner tried to interleave tasks on a single machine which is impossible if they are in different zones and require travel, unless the machine is already there. The core issue identified by the validator is that the previous plan violated precedence (starting a task before its predecessor ended) and route continuity. Given the strict constraints and the single hauler for both sides, it is highly likely that a valid schedule exists but requires precise sequencing: Combine_1 does West Harvest -> Baler_W? No, baler depends on harvest. Wait, 'bale_w' precedence is ['harvest_w']. So Combine_1 does Harvest_W, then Grain_Cart_1 does Cart_W, then Store_W. Meanwhile Combine_2 waits for t=20 to do Harvest_E. Then Grain_Cart_1 must switch from West to East. The travel time between fields is significant (via yard). If Grain_Cart_1 finishes West chain at T_w, it must travel to East. If T_w + Travel < Start_Harvest_E (which is 20), it waits. But Harvest_W takes 40. Cart_W takes 10. Total 50. Plus travel from yard to field_w (12.67). Total arrival at W ~13, finish ~63. Then travel to E (~13.2). Arrival at E ~76. Start Harvest_E must be >= 20. This is fine. The problem in the previous attempt was likely assigning tasks out of order or ignoring the single machine constraint for the hauler. However, the error 'TRAVEL_TIME_INFEASIBLE: combine_1 leaves yard at t=0 and needs 12.6667 to reach field_w, arriving t=12.6667, but task harvest_w starts at t=0' suggests the validator expects the machine to be at the zone when the task starts. If the machine is assigned a task starting at t=0 in field_w, it must arrive by t=0. Since it starts at yard, it cannot start at t=0 unless it is already there. The scenario says 'start_zone': 'yard'. So any task in field_w starting at t=0 is impossible for a machine starting at yard. Therefore, the mission as described with these specific time windows and travel times might be infeasible if the planner assumes tasks can start immediately upon assignment without accounting for travel from the depot. The error message explicitly states 'TRAVEL_TIME_INFEASIBLE'. Thus, no valid plan exists under the strict rules provided where a machine must be at the zone to start the task, and it starts at 'yard'.",
+          "input_tokens": 3206,
+          "output_tokens": 1250,
+          "latency_s": 175.271108078
+        }
+      ]
+    },
+    {
+      "planner": "ollama:qwen3.5:9b",
+      "scenario_id": "h02_single_lane_ramp",
+      "tier": "hard",
+      "domain": "mining",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 207.12,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "invalid_plan",
+          "violations": {
+            "EDGE_MISSING": 4,
+            "MACHINE_OVERLAP": 1,
+            "PRECEDENCE_VIOLATED": 2,
+            "ROUTE_START_MISMATCH": 2,
+            "TRAVEL_TIME_INFEASIBLE": 4
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 2183,
+          "output_tokens": 769,
+          "latency_s": 113.4220405570004
+        },
+        {
+          "attempt": 1,
+          "outcome": "invalid_plan",
+          "violations": {
+            "EDGE_MISSING": 4,
+            "MACHINE_OVERLAP": 1,
+            "ROUTE_START_MISMATCH": 2,
+            "TRAVEL_TIME_INFEASIBLE": 3
+          },
+          "hallucinated": false,
+          "makespan": null,
+          "reason": null,
+          "input_tokens": 3110,
+          "output_tokens": 776,
+          "latency_s": 124.4799070400004
+        },
+        {
+          "attempt": 2,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "The mission is infeasible because the site graph does not contain edges connecting 'ramp_top' directly to 'bench_1' or 'bench_2'. The only path from the ramp system to the benches requires passing through 'ramp_bottom'. Consequently, any machine starting at 'surface', going up to 'ramp_top', and then needing to service a bench must traverse 'ramp_top' -> 'ramp_bottom' -> [bench]. This creates unavoidable travel times between tasks on different benches (e.g., Bench 1 to Bench 2) that exceed the task durations, causing overlaps. Additionally, the previous plan attempted to use non-existent edges like 'ramp_top-bench_2'. Even with optimal routing via 'ramp_bottom', the single-lane ramp constraint and lack of parallel paths between benches make it impossible for a single machine to service both benches sequentially within their tight precedence windows without violating time constraints or overlapping tasks.",
+          "input_tokens": 3007,
+          "output_tokens": 215,
+          "latency_s": 42.47714613700009
+        }
+      ]
+    },
+    {
+      "planner": "ollama:qwen3.5:9b",
+      "scenario_id": "h03_pour_deadline",
+      "tier": "hard",
+      "domain": "construction",
+      "perturbed": false,
+      "ground_truth_feasible": false,
+      "reference_makespan": null,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "The precedence chain for the east side (formwork_east -> pour_east -> inspect_east) requires a minimum of 30 time units (10+10+10). The inspection task has a hard deadline requiring it to end by 25.0, which is impossible given the sequential dependencies.",
+          "input_tokens": 1522,
+          "output_tokens": 89,
+          "latency_s": 31.688095892000092
+        }
+      ]
+    },
+    {
+      "planner": "ollama:qwen3.5:9b",
+      "scenario_id": "h04_flooded_drift",
+      "tier": "hard",
+      "domain": "mining",
+      "perturbed": false,
+      "ground_truth_feasible": false,
+      "reference_makespan": null,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "Task bolt_3 requires capability 'bolt' and is located in zone stope_3. The only machine with capability 'bolt' is bolter_1. However, to reach stope_3 from the start zone 'shop', a vehicle must traverse the path shop -> main_drift -> flooded_drift -> stope_3. The edge between flooded_drift and stope_3 exists in the graph definition but the scenario description states 'access to stope_3 is closed'. In the provided site data, the edge (flooded_drift, stope_3) has no_go: false, while the edge (stope_2, stope_3) has no_go: true. This implies stope_3 is only accessible via flooded_drift. However, the zone 'flooded_drift' itself has no_go: true. Since bolter_1 must pass through 'flooded_drift' to reach 'stope_3', and entering a zone with no_go: true is forbidden, there is no valid route for any machine to reach stope_3.",
+          "input_tokens": 1670,
+          "output_tokens": 251,
+          "latency_s": 50.921054350000304
+        }
+      ]
+    },
+    {
+      "planner": "ollama:qwen3.5:9b",
+      "scenario_id": "h05_excavator_breakdown",
+      "tier": "hard",
+      "domain": "construction",
+      "perturbed": false,
+      "ground_truth_feasible": true,
+      "reference_makespan": 104.2,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "The mission requires four excavation tasks and four hauling tasks. The fleet consists of two excavators (capable of 'dig') and two trucks (capable of 'haul'). While the capability counts match, the scenario description explicitly states 'one excavator later fails'. Since the validator must produce a plan that satisfies all constraints deterministically without simulating future breakdowns as part of the initial planning logic (unless the breakdown is a given constraint in the mission data, which it is not; it's a narrative element), we assume full fleet availability. However, even with full availability, let's re-evaluate the energy constraints which are often the hidden killer in these problems.\n\nLet's trace the energy for one excavator doing dig_1 and dig_3 (worst case distance).\nPath: gate -> spine_road -> cut_1 (dist 5+6=11). Energy cost = 11 * 2.0 = 22. Remaining = 120 - 22 = 98. Min required = 12%. OK.\nTask duration 20. End time 20.\nNext task dig_3: cut_1 -> spine_road -> cut_3 (dist 6+10=16). Energy cost = 16 * 2.0 = 32. Remaining = 98 - 32 = 66. Min required = 14.4. OK.\nTask duration 25. End time 45.\nTotal energy used: 54. Battery capacity 120. No charging needed mid-route if we don't go back to gate? Wait, the route must be continuous.\nRoute for dig_1: [gate, spine_road, cut_1].\nRoute for dig_3: [cut_1, spine_road, cut_3].\nIs there a path from cut_3 to cut_4? Yes (5.0). But excavators don't haul.\n\nLet's check the trucks.\nTruck 1: Hauls dig_1 -> fill_area. Path: cut_1 -> spine_road -> fill_area. Dist = 6 + 7 = 13. Energy cost = 13 * 1.5 = 19.5. Cap 150. OK.\nTruck 2: Hauls dig_2 -> fill_area. Path: cut_2 -> spine_road -> fill_area. Dist = 8 + 7 = 15. Energy cost = 15 * 1.5 = 22.5. Cap 150. OK.\n\nWait, the prompt says ",
+          "input_tokens": 2249,
+          "output_tokens": 708,
+          "latency_s": 109.0468693189996
+        }
+      ]
+    },
+    {
+      "planner": "ollama:qwen3.5:9b",
+      "scenario_id": "h05_excavator_breakdown@machine_failure",
+      "tier": "hard",
+      "domain": "construction",
+      "perturbed": true,
+      "ground_truth_feasible": true,
+      "reference_makespan": 170.2,
+      "attempts": [
+        {
+          "attempt": 0,
+          "outcome": "declared_infeasible",
+          "violations": {},
+          "hallucinated": false,
+          "makespan": null,
+          "reason": "The mission requires two excavators to perform digging tasks (dig_3 and dig_4). However, the fleet only contains one excavator ('excavator_2'). The other vehicle is a truck ('truck_1') which lacks the 'dig' capability. Since every task must be assigned to a machine with the required capability, and there are 2 digging tasks but only 1 capable machine, the mission cannot be completed.",
+          "input_tokens": 1861,
+          "output_tokens": 111,
+          "latency_s": 24.013499843000318
+        }
+      ]
+    }
+  ]
+}

@@ -62,3 +62,15 @@ def test_bench_writes_outputs(tmp_path: Path) -> None:
     data = json.loads((tmp_path / "res" / "results.json").read_text())
     assert len(data["episodes"]) == 4
     assert (tmp_path / "res" / "results.md").read_text().startswith("# fleet-plan-bench results")
+
+
+def test_merge_combines_runs(tmp_path: Path) -> None:
+    for tier in ("easy", "medium"):
+        r = runner.invoke(app, ["bench", "--tier", tier, "--out", str(tmp_path / tier)])
+        assert r.exit_code == 0, r.output
+    files = [str(tmp_path / t / "results.json") for t in ("easy", "medium")]
+    r = runner.invoke(app, ["merge", *files, "--out", str(tmp_path / "merged")])
+    assert r.exit_code == 0, r.output
+    data = json.loads((tmp_path / "merged" / "results.json").read_text())
+    assert len(data["episodes"]) == 9
+    assert data["metrics"][0]["episodes"] == 9
