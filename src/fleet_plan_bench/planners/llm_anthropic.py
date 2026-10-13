@@ -17,7 +17,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from fleet_plan_bench.planners.base import RepairFeedback, Usage
+from fleet_plan_bench.planners.base import PlannerUnavailableError, RepairFeedback, Usage
 from fleet_plan_bench.planners.llm_common import (
     OUTPUT_SCHEMA,
     SYSTEM_PROMPT,
@@ -45,6 +45,17 @@ class LLMPlannerConfig:
     server_fallbacks: bool = True
     """Opt into server-side refusal fallbacks (beta). The serving model is recorded."""
     reserve_fraction: float = 0.10
+
+
+def _is_transient(exc: Exception) -> bool:
+    """Connection problems, timeouts, rate limits and 5xx: not the model's fault."""
+    try:
+        import anthropic
+    except ImportError:  # pragma: no cover - a fake client is in use
+        return False
+    if isinstance(exc, (anthropic.APIConnectionError, anthropic.RateLimitError)):
+        return True
+    return isinstance(exc, anthropic.APIStatusError) and exc.status_code >= 500
 
 
 class AnthropicPlanner:
@@ -90,12 +101,17 @@ class AnthropicPlanner:
     def plan(self, scenario: Scenario, feedback: RepairFeedback | None = None) -> Plan | Infeasible:
         req = self._request(scenario, feedback)
         t0 = time.perf_counter()
-        if self.config.server_fallbacks:
-            resp = self.client.beta.messages.create(
-                betas=["server-side-fallback-2026-07-01"], fallbacks="default", **req
-            )
-        else:
-            resp = self.client.messages.create(**req)
+        try:
+            if self.config.server_fallbacks:
+                resp = self.client.beta.messages.create(
+                    betas=["server-side-fallback-2026-07-01"], fallbacks="default", **req
+                )
+            else:
+                resp = self.client.messages.create(**req)
+        except Exception as exc:
+            if _is_transient(exc):
+                raise PlannerUnavailableError(f"Anthropic API unavailable: {exc}") from exc
+            raise
         latency = time.perf_counter() - t0
         usage = getattr(resp, "usage", None)
         self.last_usage = Usage(

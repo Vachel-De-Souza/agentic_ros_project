@@ -140,7 +140,12 @@ def bench(
     if tier:
         scenarios = [s for s in scenarios if s.tier == tier]
     planners = [get_planner(p) for p in planner]
-    episodes = run_benchmark(planners, scenarios, max_repairs=max_repairs)
+    episodes = run_benchmark(
+        planners,
+        scenarios,
+        max_repairs=max_repairs,
+        progress=lambda line: typer.echo(line, err=True),
+    )
     metrics = compute_metrics(episodes)
     out.mkdir(parents=True, exist_ok=True)
     write_results(out / "results.json", episodes, metrics)

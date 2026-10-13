@@ -27,6 +27,14 @@ class Usage:
     extra: dict[str, object] = field(default_factory=dict)
 
 
+class PlannerUnavailableError(RuntimeError):
+    """The planner could not be reached (network, timeout, overloaded server).
+
+    The benchmark retries these and, if they persist, records the attempt as
+    ``infra_error`` instead of scoring it against the planner.
+    """
+
+
 @runtime_checkable
 class Planner(Protocol):
     name: str

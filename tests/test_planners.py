@@ -7,7 +7,13 @@ from typing import Any
 import pytest
 
 from fleet_plan_bench.io import find_scenario, load_builtin_scenarios
-from fleet_plan_bench.planners import GreedyPlanner, Planner, RepairFeedback, get_planner
+from fleet_plan_bench.planners import (
+    GreedyPlanner,
+    Planner,
+    PlannerUnavailableError,
+    RepairFeedback,
+    get_planner,
+)
 from fleet_plan_bench.planners.llm_anthropic import (
     AnthropicPlanner,
     LLMOutputError,
@@ -190,7 +196,7 @@ def test_ollama_planner_plan_usage_and_payload(monkeypatch: pytest.MonkeyPatch) 
     assert out.planner == "ollama:m:1b"
     url, payload, headers = fake.calls[0]
     assert url == "http://srv/api/generate"
-    assert payload["stream"] is False and payload["options"]["temperature"] == 0
+    assert payload["stream"] is True and payload["options"]["temperature"] == 0
     assert payload["format"]["type"] == "object"
     assert payload["think"] is False
     assert "ground_truth" not in payload["prompt"]
@@ -208,10 +214,12 @@ def test_ollama_planner_errors_and_url_handling(monkeypatch: pytest.MonkeyPatch)
     assert cfg.endpoint == "https://srv/api/generate"
     with pytest.raises(ValueError, match="FPB_OLLAMA_URL"):
         _ = OllamaPlannerConfig(model="m").endpoint
-    for bad in ["not json at all", OSError("connection refused")]:
-        planner = OllamaPlanner(cfg, transport=FakeOllama([bad]))
-        with pytest.raises(LLMOutputError):
-            planner.plan(s)
+    planner = OllamaPlanner(cfg, transport=FakeOllama(["not json at all"]))
+    with pytest.raises(LLMOutputError):  # the model's fault: scored
+        planner.plan(s)
+    planner = OllamaPlanner(cfg, transport=FakeOllama([OSError("connection refused")]))
+    with pytest.raises(PlannerUnavailableError):  # the network's fault: not scored
+        planner.plan(s)
 
 
 def test_get_planner_ollama(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -231,3 +239,42 @@ def test_ollama_planner_reads_thinking_when_response_empty() -> None:
 
     out = OllamaPlanner(OllamaPlannerConfig(model="m", url="http://x"), transport).plan(s)
     assert isinstance(out, Infeasible)
+
+
+def test_ollama_streaming_transport_against_local_server() -> None:
+    """The real stdlib transport: streams NDJSON, merges chunks, sends our User-Agent."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+
+    from fleet_plan_bench.planners.llm_ollama import OllamaPlanner, OllamaPlannerConfig
+
+    seen: dict[str, Any] = {}
+    answer = json.dumps({"kind": "infeasible", "reason": "no sprayer", "assignments": []})
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_POST(self) -> None:
+            seen["ua"] = self.headers["User-Agent"]
+            seen["body"] = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+            self.send_response(200)
+            self.end_headers()
+            half = len(answer) // 2
+            for piece in (answer[:half], answer[half:]):
+                self.wfile.write((json.dumps({"response": piece, "done": False}) + "\n").encode())
+            final = {"response": "", "done": True, "prompt_eval_count": 10, "eval_count": 5}
+            self.wfile.write((json.dumps(final) + "\n").encode())
+
+        def log_message(self, *args: Any) -> None:
+            pass
+
+    server = HTTPServer(("127.0.0.1", 0), Handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        url = f"http://127.0.0.1:{server.server_port}"
+        planner = OllamaPlanner(OllamaPlannerConfig(model="m", url=url))
+        out = planner.plan(find_scenario("e04_spray_without_sprayer"))
+    finally:
+        server.shutdown()
+    assert isinstance(out, Infeasible)
+    assert seen["body"]["stream"] is True
+    assert seen["ua"].startswith("fleet-plan-bench/")
+    assert planner.last_usage is not None and planner.last_usage.output_tokens == 5

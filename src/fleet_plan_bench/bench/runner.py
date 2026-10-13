@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Sequence
+import time
+from collections.abc import Callable, Iterable, Sequence
 
 from pydantic import BaseModel, Field
 
-from fleet_plan_bench.planners.base import Planner, RepairFeedback
+from fleet_plan_bench.planners.base import Planner, PlannerUnavailableError, RepairFeedback
 from fleet_plan_bench.schemas import (
     Infeasible,
     Plan,
@@ -21,7 +22,8 @@ from fleet_plan_bench.validator import ValidatorConfig, validate
 class AttemptRecord(BaseModel):
     attempt: int
     outcome: str
-    """``valid_plan``, ``invalid_plan``, ``declared_infeasible`` or ``error``."""
+    """``valid_plan``, ``invalid_plan``, ``declared_infeasible``, ``error`` (planner output
+    could not be used; scored) or ``infra_error`` (planner unreachable; not scored)."""
     violations: dict[str, int] = Field(default_factory=dict)
     hallucinated: bool = False
     makespan: float | None = None
@@ -49,6 +51,11 @@ class EpisodeResult(BaseModel):
     def final(self) -> AttemptRecord:
         return self.attempts[-1]
 
+    @property
+    def infra_failed(self) -> bool:
+        """The episode was cut short by an unreachable planner; metrics exclude it."""
+        return self.final.outcome == "infra_error"
+
 
 def expand_scenarios(scenarios: Iterable[Scenario]) -> list[tuple[Scenario, bool]]:
     """Each scenario, plus its post-perturbation replanning scenario when it has one."""
@@ -67,16 +74,27 @@ def run_episode(
     perturbed: bool = False,
     max_repairs: int = 3,
     config: ValidatorConfig | None = None,
+    retries: int = 3,
+    retry_backoff_s: float = 10.0,
+    progress: Callable[[str], None] | None = None,
 ) -> EpisodeResult:
-    """One planning episode: first attempt plus up to ``max_repairs`` repair attempts."""
+    """One planning episode: first attempt plus up to ``max_repairs`` repair attempts.
+
+    A ``PlannerUnavailableError`` is retried ``retries`` times with exponential backoff;
+    if it persists the attempt is recorded as ``infra_error`` and the episode stops.
+    """
     attempts: list[AttemptRecord] = []
     feedback: RepairFeedback | None = None
     previous: Plan | Infeasible | None = None
     repairable = getattr(planner, "repairable", True)
     for k in range(max_repairs + 1):
-        rec, output, violations = _attempt(planner, scenario, feedback, k, config)
+        rec, output, violations = _attempt(
+            planner, scenario, feedback, k, config, retries, retry_backoff_s
+        )
         attempts.append(rec)
-        if rec.outcome in ("valid_plan", "declared_infeasible"):
+        if progress is not None:
+            progress(_describe(planner.name, scenario.id, rec))
+        if rec.outcome in ("valid_plan", "declared_infeasible", "infra_error"):
             break
         if not repairable or (output is not None and output == previous):
             break
@@ -102,9 +120,19 @@ def _attempt(
     feedback: RepairFeedback | None,
     k: int,
     config: ValidatorConfig | None,
+    retries: int = 3,
+    retry_backoff_s: float = 10.0,
 ) -> tuple[AttemptRecord, Plan | Infeasible | None, list[Violation]]:
     try:
-        output = planner.plan(scenario, feedback)
+        output = _plan_with_retries(planner, scenario, feedback, retries, retry_backoff_s)
+    except PlannerUnavailableError as exc:
+        rec = AttemptRecord(
+            attempt=k,
+            outcome="infra_error",
+            reason=str(exc)[:500],
+            **_usage_fields(getattr(planner, "last_usage", None)),
+        )
+        return rec, None, []
     except Exception as exc:  # a planner crash or unparseable LLM output is scored, not fatal
         usage = getattr(planner, "last_usage", None)
         v = Violation(code=ViolationCode.SCHEMA_INVALID, message=f"planner output error: {exc}")
@@ -135,6 +163,30 @@ def _attempt(
     return rec, output, report.violations
 
 
+def _plan_with_retries(
+    planner: Planner,
+    scenario: Scenario,
+    feedback: RepairFeedback | None,
+    retries: int,
+    backoff_s: float,
+) -> Plan | Infeasible:
+    for i in range(retries + 1):
+        try:
+            return planner.plan(scenario, feedback)
+        except PlannerUnavailableError:
+            if i == retries:
+                raise
+            time.sleep(backoff_s * (2**i))
+    raise AssertionError("unreachable")
+
+
+def _describe(planner: str, scenario_id: str, rec: AttemptRecord) -> str:
+    detail = ", ".join(f"{c} x{n}" for c, n in rec.violations.items()) or rec.reason or ""
+    latency = f" {rec.latency_s:.1f}s" if rec.latency_s is not None else ""
+    text = f"[{planner}] {scenario_id} attempt {rec.attempt}: {rec.outcome}{latency}"
+    return f"{text} ({detail[:160]})" if detail else text
+
+
 def _usage_fields(usage: object) -> dict[str, float | int | None]:
     if usage is None:
         return {}
@@ -151,10 +203,22 @@ def run_benchmark(
     *,
     max_repairs: int = 3,
     config: ValidatorConfig | None = None,
+    retries: int = 3,
+    retry_backoff_s: float = 10.0,
+    progress: Callable[[str], None] | None = None,
 ) -> list[EpisodeResult]:
     items = expand_scenarios(scenarios)
     return [
-        run_episode(p, s, perturbed=perturbed, max_repairs=max_repairs, config=config)
+        run_episode(
+            p,
+            s,
+            perturbed=perturbed,
+            max_repairs=max_repairs,
+            config=config,
+            retries=retries,
+            retry_backoff_s=retry_backoff_s,
+            progress=progress,
+        )
         for p in planners
         for s, perturbed in items
     ]

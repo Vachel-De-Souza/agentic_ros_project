@@ -20,7 +20,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from fleet_plan_bench import __version__
-from fleet_plan_bench.planners.base import RepairFeedback, Usage
+from fleet_plan_bench.planners.base import PlannerUnavailableError, RepairFeedback, Usage
 from fleet_plan_bench.planners.llm_common import (
     OUTPUT_SCHEMA,
     SYSTEM_PROMPT,
@@ -51,7 +51,8 @@ class OllamaPlannerConfig:
     seed: int = 0
     num_ctx: int | None = 16384
     """Context window; scenarios plus repair feedback exceed Ollama's small default."""
-    timeout_s: float = 600.0
+    timeout_s: float = 300.0
+    """Per socket read while streaming (time without any data), not per request."""
     reserve_fraction: float = 0.10
 
     @property
@@ -66,11 +67,32 @@ Transport = Any  # callable(url, payload: dict, headers: dict, timeout: float) -
 
 
 def _http_post(url: str, payload: dict[str, Any], headers: dict[str, str], timeout: float) -> Any:
-    req = urllib.request.Request(
-        url, data=json.dumps(payload).encode(), headers=headers, method="POST"
-    )
+    """POST with ``stream: true`` and merge the NDJSON chunks into one non-streaming reply.
+
+    Streaming starts the response within seconds, so reverse proxies with a
+    time-to-first-byte limit (e.g. Cloudflare's 100 s, HTTP 524) never cut off slow
+    generations. ``timeout`` applies per socket read, not to the whole request.
+    """
+    body = json.dumps({**payload, "stream": True}).encode()
+    req = urllib.request.Request(url, data=body, headers=headers, method="POST")
+    response: list[str] = []
+    thinking: list[str] = []
+    final: dict[str, Any] = {}
     with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return json.loads(resp.read().decode())
+        for line in resp:
+            if not line.strip():
+                continue
+            chunk = json.loads(line)
+            if "error" in chunk:
+                raise ValueError(f"server error: {chunk['error']}")
+            response.append(chunk.get("response") or "")
+            thinking.append(chunk.get("thinking") or "")
+            if chunk.get("done"):
+                final = chunk
+                break
+    if not final:
+        raise ValueError("stream ended before the final chunk")
+    return {**final, "response": "".join(response), "thinking": "".join(thinking)}
 
 
 class OllamaPlanner:
@@ -97,7 +119,7 @@ class OllamaPlanner:
             "model": cfg.model,
             "system": SYSTEM_PROMPT.format(reserve=cfg.reserve_fraction),
             "prompt": prompt,
-            "stream": False,
+            "stream": True,
             "options": options,
         }
         payload["format"] = OUTPUT_SCHEMA if cfg.structured_output else "json"
@@ -120,7 +142,7 @@ class OllamaPlanner:
             data = self.transport(cfg.endpoint, payload, headers, cfg.timeout_s)
         except (urllib.error.URLError, TimeoutError, OSError, ValueError) as exc:
             self.last_usage = Usage(latency_s=time.perf_counter() - t0)
-            raise LLMOutputError(f"Ollama request failed: {exc}", raw="") from exc
+            raise PlannerUnavailableError(f"Ollama request failed: {exc}") from exc
         latency = time.perf_counter() - t0
         self.last_usage = Usage(
             input_tokens=data.get("prompt_eval_count"),

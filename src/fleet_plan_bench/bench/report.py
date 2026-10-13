@@ -43,8 +43,8 @@ def markdown_table(metrics: Sequence[PlannerMetrics]) -> str:
     head = (
         "| Planner | First-attempt feasible | Post-repair feasible | Repair success "
         "| Hallucinated refs | Infeasible precision | Infeasible recall "
-        "| Makespan gap vs ref | Mean tokens (in/out) | Mean latency |\n"
-        "|---|---|---|---|---|---|---|---|---|---|"
+        "| Makespan gap vs ref | Mean tokens (in/out) | Mean latency | Episodes (infra-failed) |\n"
+        "|---|---|---|---|---|---|---|---|---|---|---|"
     )
     rows = [
         f"| {m.planner} | {_pct(m.first_attempt_feasibility)} "
@@ -52,7 +52,8 @@ def markdown_table(metrics: Sequence[PlannerMetrics]) -> str:
         f"| {_pct(m.hallucinated_reference_rate)} | {_pct(m.infeasibility_precision)} "
         f"| {_pct(m.infeasibility_recall)} | {_gap(m.makespan_gap_vs_reference)} "
         f"| {_num(m.mean_input_tokens)}/{_num(m.mean_output_tokens)} "
-        f"| {_num(m.mean_latency_s, '{:.2f}s')} |"
+        f"| {_num(m.mean_latency_s, '{:.2f}s')} "
+        f"| {m.episodes} ({m.infra_failed_episodes}) |"
         for m in metrics
     ]
     return "\n".join([head, *rows])

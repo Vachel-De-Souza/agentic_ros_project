@@ -1,7 +1,19 @@
-from fleet_plan_bench.planners.base import Planner, RepairFeedback, Usage
+from fleet_plan_bench.planners.base import (
+    Planner,
+    PlannerUnavailableError,
+    RepairFeedback,
+    Usage,
+)
 from fleet_plan_bench.planners.greedy import GreedyPlanner
 
-__all__ = ["GreedyPlanner", "Planner", "RepairFeedback", "Usage", "get_planner"]
+__all__ = [
+    "GreedyPlanner",
+    "Planner",
+    "PlannerUnavailableError",
+    "RepairFeedback",
+    "Usage",
+    "get_planner",
+]
 
 
 def get_planner(name: str) -> Planner:

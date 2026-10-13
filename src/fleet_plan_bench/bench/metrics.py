@@ -14,6 +14,9 @@ from fleet_plan_bench.bench.runner import EpisodeResult
 class PlannerMetrics(BaseModel):
     planner: str
     episodes: int
+    """Scored episodes (excludes ``infra_failed_episodes``)."""
+    infra_failed_episodes: int
+    """Episodes cut short because the planner was unreachable; excluded from all rates."""
     feasible_episodes: int
     infeasible_episodes: int
     first_attempt_feasibility: float | None
@@ -53,7 +56,8 @@ def compute_metrics(episodes: Sequence[EpisodeResult]) -> list[PlannerMetrics]:
     return [_for_planner(p, [e for e in episodes if e.planner == p]) for p in planners]
 
 
-def _for_planner(planner: str, eps: list[EpisodeResult]) -> PlannerMetrics:
+def _for_planner(planner: str, all_eps: list[EpisodeResult]) -> PlannerMetrics:
+    eps = [e for e in all_eps if not e.infra_failed]
     feas = [e for e in eps if e.ground_truth_feasible]
     infeas = [e for e in eps if not e.ground_truth_feasible]
     first_ok = [e for e in feas if e.first.outcome == "valid_plan"]
@@ -95,6 +99,7 @@ def _for_planner(planner: str, eps: list[EpisodeResult]) -> PlannerMetrics:
     return PlannerMetrics(
         planner=planner,
         episodes=len(eps),
+        infra_failed_episodes=len(all_eps) - len(eps),
         feasible_episodes=len(feas),
         infeasible_episodes=len(infeas),
         first_attempt_feasibility=_ratio(len(first_ok), len(feas)),

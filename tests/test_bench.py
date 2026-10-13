@@ -14,7 +14,7 @@ from fleet_plan_bench.bench import (
     write_results,
 )
 from fleet_plan_bench.io import find_scenario, load_builtin_scenarios
-from fleet_plan_bench.planners import GreedyPlanner, RepairFeedback
+from fleet_plan_bench.planners import GreedyPlanner, PlannerUnavailableError, RepairFeedback
 from fleet_plan_bench.schemas import Infeasible, Plan, Scenario
 
 
@@ -121,3 +121,24 @@ def test_greedy_benchmark_end_to_end(tmp_path: Path) -> None:
     assert len(data["episodes"]) == len(eps)
     md = markdown_report(eps, [m])
     assert "| greedy |" in md and "h05_excavator_breakdown@machine_failure" in md
+
+
+def test_unavailable_planner_is_retried_then_recovers(e01: Scenario) -> None:
+    planner = Scripted([PlannerUnavailableError("524"), _good(e01)])
+    lines: list[str] = []
+    ep = run_episode(planner, e01, retry_backoff_s=0, progress=lines.append)
+    assert [a.outcome for a in ep.attempts] == ["valid_plan"]
+    assert len(planner.feedback) == 2  # the retry re-sent the same request
+    assert lines and "valid_plan" in lines[0] and "e01_orchard_mowing" in lines[0]
+
+
+def test_persistent_unavailability_is_infra_error_and_not_scored(e01: Scenario) -> None:
+    down = Scripted([PlannerUnavailableError("connection refused")], name="down")
+    ep = run_episode(down, e01, retries=2, retry_backoff_s=0)
+    assert [a.outcome for a in ep.attempts] == ["infra_error"]
+    assert ep.infra_failed
+    assert ep.first.violations == {} and not ep.first.hallucinated
+    ok = run_episode(Scripted([_good(e01)], name="down"), e01)
+    m = compute_metrics([ep, ok])[0]
+    assert m.infra_failed_episodes == 1 and m.episodes == 1
+    assert m.hallucinated_reference_rate == 0
