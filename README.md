@@ -44,6 +44,8 @@ fpb bench -p greedy -p ortools --out results/          # writes results.json + r
 export ANTHROPIC_API_KEY=...                            # only for the LLM planner
 fpb bench -p llm --out results/                         # model: $FPB_LLM_MODEL or claude-opus-5-5
 fpb bench -p llm:<model-id> --tier hard                 # pick the model explicitly
+export FPB_OLLAMA_URL=https://<your-ollama-host>        # any Ollama server
+fpb bench -p ollama:<model-tag> -p ollama:<other-tag>   # open-weight models via Ollama
 fpb plan h05_excavator_breakdown --perturbed -p ortools # replanning after a breakdown
 ```
 
@@ -212,6 +214,11 @@ Built-in planners:
   (`server_fallbacks=False` to disable), and the serving model is recorded per attempt.
   The output schema does not restrict ids to an enum, so hallucinated references stay
   measurable.
+- **ollama:<model-tag>**: any model served by an Ollama server (`/api/generate`). It uses
+  the same prompt, output schema and repair feedback as the Anthropic adapter, so results
+  are comparable. It needs no extra dependency (standard-library HTTP). The server URL
+  comes from `FPB_OLLAMA_URL`, plus an optional bearer token from `FPB_OLLAMA_API_KEY`.
+  Sampling is pinned to temperature 0 with a fixed seed, and the context window to 16k.
 
 ## Metrics
 

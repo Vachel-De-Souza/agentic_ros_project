@@ -5,7 +5,11 @@ __all__ = ["GreedyPlanner", "Planner", "RepairFeedback", "Usage", "get_planner"]
 
 
 def get_planner(name: str) -> Planner:
-    """Build a built-in planner by name: ``greedy``, ``ortools`` or ``llm[:<model>]``."""
+    """Build a built-in planner by name.
+
+    ``greedy``, ``ortools``, ``llm[:<anthropic-model>]`` or ``ollama:<model-tag>``
+    (Ollama server URL from ``FPB_OLLAMA_URL``).
+    """
     if name == "greedy":
         return GreedyPlanner()
     if name == "ortools":
@@ -19,4 +23,10 @@ def get_planner(name: str) -> Planner:
         if name.startswith("llm:"):
             cfg.model = name.split(":", 1)[1]
         return AnthropicPlanner(cfg)
-    raise ValueError(f"unknown planner {name!r} (expected greedy, ortools or llm[:model])")
+    if name.startswith("ollama:"):
+        from fleet_plan_bench.planners.llm_ollama import OllamaPlanner, OllamaPlannerConfig
+
+        return OllamaPlanner(OllamaPlannerConfig(model=name.split(":", 1)[1]))
+    raise ValueError(
+        f"unknown planner {name!r} (expected greedy, ortools, llm[:model] or ollama:<model>)"
+    )

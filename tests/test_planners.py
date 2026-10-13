@@ -157,3 +157,62 @@ def test_llm_model_name_from_env(monkeypatch: pytest.MonkeyPatch) -> None:
     assert LLMPlannerConfig().model == "some-model"
     monkeypatch.delenv("FPB_LLM_MODEL")
     assert LLMPlannerConfig().model == "claude-opus-5-5"
+
+
+# --- Ollama adapter, with a fake transport (no network) ------------------------------
+
+
+class FakeOllama:
+    def __init__(self, responses: list[Any]) -> None:
+        self.responses = responses
+        self.calls: list[tuple[str, dict[str, Any], dict[str, str]]] = []
+
+    def __call__(self, url: str, payload: dict[str, Any], headers: dict[str, str], timeout: float):  # type: ignore[no-untyped-def]
+        self.calls.append((url, payload, headers))
+        out = self.responses.pop(0)
+        if isinstance(out, Exception):
+            raise out
+        return {"model": payload["model"], "response": out, "prompt_eval_count": 900,
+                "eval_count": 120, "done_reason": "stop"}  # fmt: skip
+
+
+def test_ollama_planner_plan_usage_and_payload(monkeypatch: pytest.MonkeyPatch) -> None:
+    from fleet_plan_bench.planners.llm_ollama import OllamaPlanner, OllamaPlannerConfig
+
+    monkeypatch.setenv("FPB_OLLAMA_API_KEY", "test-token")
+    s = find_scenario("e01_orchard_mowing")
+    ref = s.ground_truth.reference_plan
+    assert ref is not None
+    fake = FakeOllama([_reply_from(ref)])
+    planner = OllamaPlanner(OllamaPlannerConfig(model="m:1b", url="http://srv/"), transport=fake)
+    out = planner.plan(s)
+    assert isinstance(out, Plan) and validate(s, out).valid
+    assert out.planner == "ollama:m:1b"
+    url, payload, headers = fake.calls[0]
+    assert url == "http://srv/api/generate"
+    assert payload["stream"] is False and payload["options"]["temperature"] == 0
+    assert payload["format"]["type"] == "object"
+    assert "ground_truth" not in payload["prompt"]
+    assert headers["Authorization"] == "Bearer test-token"
+    assert planner.last_usage is not None and planner.last_usage.output_tokens == 120
+
+
+def test_ollama_planner_errors_and_url_handling(monkeypatch: pytest.MonkeyPatch) -> None:
+    from fleet_plan_bench.planners.llm_ollama import OllamaPlanner, OllamaPlannerConfig
+
+    monkeypatch.delenv("FPB_OLLAMA_URL", raising=False)
+    s = find_scenario("e01_orchard_mowing")
+    cfg = OllamaPlannerConfig(model="m", url="https://srv/api/generate")
+    assert cfg.endpoint == "https://srv/api/generate"
+    with pytest.raises(ValueError, match="FPB_OLLAMA_URL"):
+        _ = OllamaPlannerConfig(model="m").endpoint
+    for bad in ["not json at all", OSError("connection refused")]:
+        planner = OllamaPlanner(cfg, transport=FakeOllama([bad]))
+        with pytest.raises(LLMOutputError):
+            planner.plan(s)
+
+
+def test_get_planner_ollama(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("FPB_OLLAMA_URL", "http://srv")
+    p = get_planner("ollama:qwen:7b")
+    assert p.name == "ollama:qwen:7b"

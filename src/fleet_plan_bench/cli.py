@@ -103,7 +103,9 @@ def show(
 @app.command("plan")
 def plan_cmd(
     scenario: ScenarioArg,
-    planner: Annotated[str, typer.Option(help="greedy, ortools or llm[:model].")] = "greedy",
+    planner: Annotated[
+        str, typer.Option(help="greedy, ortools, llm[:model] or ollama:<model>.")
+    ] = "greedy",
     out: Annotated[Path | None, typer.Option("-o", "--out", help="Write the plan here.")] = None,
     perturbed: PerturbedOpt = False,
 ) -> None:
@@ -121,7 +123,10 @@ def plan_cmd(
 @app.command("bench")
 def bench(
     planner: Annotated[
-        list[str], typer.Option("--planner", "-p", help="Repeatable: greedy, ortools, llm[:model].")
+        list[str],
+        typer.Option(
+            "--planner", "-p", help="Repeatable: greedy, ortools, llm[:model], ollama:<model>."
+        ),
     ] = ["greedy"],  # noqa: B006 - typer needs a literal default
     scenario: Annotated[
         list[str] | None, typer.Option("--scenario", "-s", help="Repeatable; default: all.")
