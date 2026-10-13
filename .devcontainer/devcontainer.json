@@ -1,0 +1,29 @@
+{
+  "name": "fleet-plan-bench (ROS 2 Jazzy)",
+  "build": {
+    "dockerfile": "../docker/ros2.Dockerfile",
+    "context": "..",
+    "target": "dev",
+    "args": { "ROS_DISTRO": "jazzy" }
+  },
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "postCreateCommand": "pip install -e '.[dev,ortools,llm]' && bash scripts/ros2_build.sh",
+  "containerEnv": {
+    "ROS_DOMAIN_ID": "42"
+  },
+  "runArgs": ["--network=host"],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.mypy-type-checker",
+        "charliermarsh.ruff",
+        "redhat.vscode-xml"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/opt/venv/bin/python",
+        "python.testing.pytestEnabled": true
+      }
+    }
+  }
+}

@@ -10,6 +10,8 @@ back for repair, and reports feasibility, hallucination, infeasibility detection
 success and plan quality.
 
 - Pure Python 3.10+, no ROS dependency, planner-agnostic.
+- Optional **ROS 2 wrapper** (Jazzy): a validator node with a `validate_plan` service, plus
+  Docker images and a VS Code dev container. See [ros2/README.md](ros2/README.md).
 - The validator is fully deterministic. **No LLM is ever used to judge a plan.**
 - All scenarios are **synthetic**. Units are abstract, and no real site, vehicle or
   customer data is included.
@@ -300,6 +302,21 @@ This project builds on ideas from the following work. No code was copied from an
   machine-failure scenario. Next: more event types (blocked edge, new urgent task,
   battery degradation) and metrics on plan stability versus the pre-event plan.
 
+## ROS 2 wrapper
+
+`ros2/` holds two optional ROS 2 packages: `fleet_plan_validator_interfaces` (a
+`ValidatePlan` service) and `fleet_plan_validator_ros` (the validator node and a launch
+file). They import the pip core unchanged, so results match the benchmark exactly.
+
+```bash
+docker build -f docker/ros2.Dockerfile --target runtime -t fleet-plan-validator:jazzy .
+docker run --rm -it --network host fleet-plan-validator:jazzy \
+  ros2 launch fleet_plan_validator_ros validator.launch.py default_scenario:=m03_mine_bench
+```
+
+Details, the service definition, and native (non-Docker) build steps are in
+[ros2/README.md](ros2/README.md).
+
 ## Development
 
 ```bash
@@ -307,5 +324,11 @@ pip install -e ".[dev,ortools,llm]"
 ruff check . && ruff format --check . && pytest
 mypy src
 ```
+
+Or open the repo in the **dev container** (`.devcontainer/`, ROS 2 Jazzy + all tools). It
+installs the package and builds the ROS 2 workspace on creation;
+`scripts/ros2_build.sh --test` rebuilds and tests the ROS 2 packages. CI runs ruff and
+pytest on Python 3.10 and 3.12, plus a Docker job that builds and tests the ROS 2 packages
+on Jazzy.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Licensed under the [MIT License](LICENSE).

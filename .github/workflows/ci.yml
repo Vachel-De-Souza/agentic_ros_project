@@ -25,3 +25,11 @@ jobs:
           ruff format --check .
       - name: Pytest
         run: pytest -q
+
+  ros2:
+    name: ROS 2 Jazzy wrapper
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image, colcon build and colcon test
+        run: docker build -f docker/ros2.Dockerfile --target test -t fpb-ros2:test .
