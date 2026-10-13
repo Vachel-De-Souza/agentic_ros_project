@@ -192,8 +192,10 @@ def test_ollama_planner_plan_usage_and_payload(monkeypatch: pytest.MonkeyPatch) 
     assert url == "http://srv/api/generate"
     assert payload["stream"] is False and payload["options"]["temperature"] == 0
     assert payload["format"]["type"] == "object"
+    assert payload["think"] is False
     assert "ground_truth" not in payload["prompt"]
     assert headers["Authorization"] == "Bearer test-token"
+    assert headers["User-Agent"].startswith("fleet-plan-bench/")
     assert planner.last_usage is not None and planner.last_usage.output_tokens == 120
 
 
@@ -216,3 +218,16 @@ def test_get_planner_ollama(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("FPB_OLLAMA_URL", "http://srv")
     p = get_planner("ollama:qwen:7b")
     assert p.name == "ollama:qwen:7b"
+
+
+def test_ollama_planner_reads_thinking_when_response_empty() -> None:
+    from fleet_plan_bench.planners.llm_ollama import OllamaPlanner, OllamaPlannerConfig
+
+    s = find_scenario("e04_spray_without_sprayer")
+    reply = json.dumps({"kind": "infeasible", "reason": "no sprayer", "assignments": []})
+
+    def transport(url, payload, headers, timeout):  # type: ignore[no-untyped-def]
+        return {"model": "m", "response": "", "thinking": reply}
+
+    out = OllamaPlanner(OllamaPlannerConfig(model="m", url="http://x"), transport).plan(s)
+    assert isinstance(out, Infeasible)

@@ -19,6 +19,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from fleet_plan_bench import __version__
 from fleet_plan_bench.planners.base import RepairFeedback, Usage
 from fleet_plan_bench.planners.llm_common import (
     OUTPUT_SCHEMA,
@@ -42,6 +43,10 @@ class OllamaPlannerConfig:
     """Server base URL (``https://host``) or the full ``.../api/generate`` endpoint."""
     structured_output: bool = True
     """Send OUTPUT_SCHEMA as Ollama's ``format`` to constrain the response."""
+    think: bool | None = False
+    """Ollama's ``think`` flag; None leaves the server default. Off by default because with
+    ``format`` set, Ollama constrains a thinking model's reasoning to the schema too and
+    returns the answer in ``thinking`` with an empty ``response``."""
     temperature: float = 0.0
     seed: int = 0
     num_ctx: int | None = 16384
@@ -96,11 +101,17 @@ class OllamaPlanner:
             "options": options,
         }
         payload["format"] = OUTPUT_SCHEMA if cfg.structured_output else "json"
+        if cfg.think is not None:
+            payload["think"] = cfg.think
         return payload
 
     def plan(self, scenario: Scenario, feedback: RepairFeedback | None = None) -> Plan | Infeasible:
         cfg = self.config
-        headers = {"Content-Type": "application/json"}
+        # An explicit User-Agent: some proxies/CDNs reject Python's default "Python-urllib".
+        headers = {
+            "Content-Type": "application/json",
+            "User-Agent": f"fleet-plan-bench/{__version__}",
+        }
         if key := os.environ.get(KEY_ENV):
             headers["Authorization"] = f"Bearer {key}"
         payload = self._payload(scenario, feedback)
@@ -117,7 +128,9 @@ class OllamaPlanner:
             latency_s=latency,
             extra={"served_model": data.get("model"), "done_reason": data.get("done_reason")},
         )
-        text = str(data.get("response", ""))
+        text = str(data.get("response") or "")
+        if not text.strip():  # thinking models can return the JSON in "thinking" instead
+            text = str(data.get("thinking") or "")
         self.last_raw = text
         try:
             return to_planner_output(extract_json(text), self.name)
