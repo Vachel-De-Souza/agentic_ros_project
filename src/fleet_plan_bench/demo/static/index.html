@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fleet Plan Live Demo</title>
+<style>
+:root{--bg:#0f1418;--panel:#182027;--line:#2a343d;--text:#e6edf3;--muted:#8b98a5;
+  --ok:#3fb950;--warn:#d29922;--err:#f85149;--info:#58a6ff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);height:100vh;display:flex;
+  flex-direction:column;font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{display:flex;align-items:center;gap:14px;padding:10px 16px;
+  border-bottom:1px solid var(--line);flex-wrap:wrap}
+h1{font-size:16px;margin:0;font-weight:600}
+.muted{color:var(--muted)}
+.badge{padding:3px 10px;border-radius:999px;font-weight:600;font-size:12px;
+  text-transform:uppercase;letter-spacing:.04em;background:var(--line)}
+.p-planning,.p-replanning{background:#1f3a5f;color:#9ecbff}
+.p-executing{background:#1b4332;color:#95d5b2}
+.p-failure,.p-failed{background:#5c1d1d;color:#ffb3ad}
+.p-done{background:#2d333b;color:#cdd9e5}
+button{margin-left:auto;background:var(--info);color:#071018;border:0;border-radius:8px;
+  padding:8px 16px;font-weight:600;cursor:pointer}
+button:disabled{opacity:.4;cursor:default}
+main{flex:1;display:grid;grid-template-columns:minmax(0,1.6fr) minmax(360px,1fr);min-height:0}
+.left{display:flex;flex-direction:column;gap:12px;padding:12px 14px;min-height:0;overflow:auto}
+aside{overflow:auto;padding:12px 14px;display:flex;flex-direction:column;gap:12px;
+  border-left:1px solid var(--line)}
+section{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:10px 12px}
+section h2{font-size:12px;margin:0 0 8px;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.06em}
+#sim{border:0;width:100%;aspect-ratio:1280/800;background:#000;border-radius:10px;flex:none}
+#stage{flex:none;padding:0;overflow:hidden}
+#bigmap{display:block;width:100%;aspect-ratio:16/10;background:#121a20}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td{padding:4px;border-top:1px solid var(--line)}
+.chip{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;
+  vertical-align:middle}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;width:70px}
+.bar>i{display:block;height:100%}
+.att{border-left:3px solid var(--line);padding:4px 8px;margin:6px 0}
+.att.valid{border-color:var(--ok)}
+.att.rejected,.att.error{border-color:var(--warn)}
+.att.declared_infeasible{border-color:var(--info)}
+.att ul{margin:4px 0 0 16px;padding:0;color:var(--muted);font-size:12px}
+.ev{font-size:12px;padding:2px 0;color:var(--muted)}
+.ev.ok{color:var(--ok)}.ev.warn{color:var(--warn)}.ev.error{color:var(--err)}
+svg .zlabel{font-size:3px;fill:#cdd9e5}
+svg .vlabel{font-size:2.3px;fill:#e6edf3;font-weight:600}
+svg .veh{transition:transform .35s linear}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);padding:8px 12px}
+.legend i{display:inline-block;width:14px;height:4px;margin-right:6px;vertical-align:middle}
+@media (max-width:900px){main{grid-template-columns:1fr}aside{border-left:0}}
+</style></head><body>
+<header><h1>Fleet plan live demo</h1><span id="scn" class="muted"></span>
+<span id="phase" class="badge">ready</span><span id="clock" class="muted"></span>
+<span id="planner" class="muted"></span><button id="start">Start mission</button></header>
+<main>
+<div class="left">
+  <section id="stage">
+    <svg id="bigmap" viewBox="0 0 160 100" role="img" aria-label="Live site map"></svg>
+    <div class="legend"><span><i style="background:#57606a"></i>road</span>
+      <span><i style="background:#f0883e"></i>single-lane</span>
+      <span><i style="background:#f85149"></i>no-go</span>
+      <span><i style="background:#e3b341;height:10px;width:10px;border-radius:50%"></i>charger</span></div>
+  </section>
+  <iframe id="sim" title="Gazebo" hidden></iframe>
+  <section><h2>Events</h2><div id="evs"></div></section>
+</div>
+<aside>
+  <section id="mini" hidden><h2>Site map</h2>
+    <svg id="minimap" viewBox="0 0 160 100" width="100%"></svg></section>
+  <section><h2>Fleet</h2><table id="fleet"></table></section>
+  <section><h2>AI planner &amp; validator</h2><div id="atts" class="muted">Press start.</div></section>
+  <section><h2>Summary</h2><div id="sum" class="muted">-</div></section>
+</aside>
+</main>
+<script>
+const VIEW = "__VIEW__";            // "map" or "gazebo"
+const NOVNC_PORT = "__NOVNC_PORT__";
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g,
+  c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+const KIND = {depot: "#6e7681", field: "#3f7d3a", orchard: "#356b31", storage: "#8a7346",
+  stockpile: "#7a6650", pit: "#6b5548", bench: "#6e665c", work_area: "#8f7f55",
+  road: "#3b434b", track: "#3b434b", decline: "#4a4f55", drift: "#4a4f55"};
+let svgMap = null, project = null, built = null;
+
+if (VIEW === "gazebo") {
+  $("stage").hidden = true; $("sim").hidden = false; $("mini").hidden = false;
+  $("sim").src = `${location.protocol}//${location.hostname}:${NOVNC_PORT}` +
+    "/vnc.html?autoconnect=1&resize=scale&view_only=1&reconnect=1";
+  svgMap = $("minimap");
+} else {
+  svgMap = $("bigmap");
+}
+
+function fit(zones) {
+  const xs = zones.map(z => z.pos[0]), ys = zones.map(z => z.pos[1]);
+  const minx = Math.min(...xs), maxx = Math.max(...xs);
+  const miny = Math.min(...ys), maxy = Math.max(...ys);
+  const s = Math.min(136 / Math.max(maxx - minx, 1e-6), 80 / Math.max(maxy - miny, 1e-6));
+  const ox = 80 - (minx + maxx) / 2 * s, oy = 50 + (miny + maxy) / 2 * s;
+  return p => [ox + p[0] * s, oy - p[1] * s];
+}
+
+function buildMap(st) {
+  const sc = st.scenario;
+  project = fit(sc.zones);
+  const pos = Object.fromEntries(sc.zones.map(z => [z.id, project(z.pos)]));
+  let g = "";
+  for (const e of sc.edges) {
+    const [a, b] = [pos[e.a], pos[e.b]];
+    const color = e.no_go ? "#f85149" : e.single_lane ? "#f0883e" : "#57606a";
+    g += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${color}"
+      stroke-width="${e.single_lane ? 0.8 : 1.4}" stroke-linecap="round"
+      ${e.no_go ? 'stroke-dasharray="2 1.4"' : ""}/>`;
+  }
+  for (const z of sc.zones) {
+    const p = pos[z.id];
+    const fill = z.no_go ? "#5c1d1d" : (KIND[z.kind] || "#4b5560");
+    g += `<circle cx="${p[0]}" cy="${p[1]}" r="4.2" fill="${fill}" opacity=".9"
+      stroke="${z.charger ? "#e3b341" : "#0f1418"}" stroke-width="${z.charger ? 0.9 : 0.4}"/>`;
+    g += `<text class="zlabel" x="${p[0]}" y="${p[1] + 7.4}" text-anchor="middle">${esc(z.id)}</text>`;
+  }
+  for (const [id, m] of Object.entries(st.machines)) {
+    g += `<g class="veh" id="veh-${esc(id)}"><rect x="-2.2" y="-1.4" width="4.4" height="2.8"
+      rx=".6" fill="${m.color}" stroke="#0f1418" stroke-width=".35"/>
+      <text class="vlabel" x="0" y="-2.3" text-anchor="middle">${esc(id)}</text>
+      <g class="xmark" visibility="hidden"><line x1="-2.6" y1="-2.6" x2="2.6" y2="2.6"
+      stroke="#f85149" stroke-width=".9"/><line x1="2.6" y1="-2.6" x2="-2.6" y2="2.6"
+      stroke="#f85149" stroke-width=".9"/></g></g>`;
+  }
+  svgMap.innerHTML = g;
+  built = sc.id + "|" + Object.keys(st.machines).join(",");
+}
+
+function moveVehicles(st) {
+  for (const [id, m] of Object.entries(st.machines)) {
+    const el = document.getElementById(`veh-${id}`);
+    if (!el) continue;
+    const [x, y] = project([m.x, m.y]);
+    el.style.transform = `translate(${x}px, ${y}px)`;
+    el.querySelector(".xmark").setAttribute("visibility", m.status === "failed" ? "visible" : "hidden");
+    el.querySelector("rect").setAttribute("opacity", m.status === "done" ? ".55" : "1");
+  }
+}
+
+function render(st) {
+  $("scn").textContent = st.scenario.id || "";
+  $("planner").textContent = st.planner ? `planner: ${st.planner}` : "";
+  const ph = $("phase"); ph.textContent = st.phase; ph.className = `badge p-${st.phase}`;
+  $("clock").textContent = st.end_time ?
+    `t = ${st.mission_time.toFixed(1)} / ${st.end_time.toFixed(1)}` : "";
+  $("start").disabled = !["ready", "done", "failed"].includes(st.phase);
+  $("start").textContent = st.phase === "ready" ? "Start mission" : "Restart";
+  if (st.scenario.zones) {
+    const key = st.scenario.id + "|" + Object.keys(st.machines).join(",");
+    if (built !== key) buildMap(st);
+    moveVehicles(st);
+  }
+  $("fleet").innerHTML = Object.entries(st.machines).map(([id, m]) => {
+    const pct = Math.max(0, Math.min(100, m.battery));
+    return `<tr><td><span class="chip" style="background:${m.color}"></span>${esc(id)}</td>
+      <td class="muted">${esc(m.type)}</td>
+      <td>${esc(m.status)}${m.task ? ` · ${esc(m.task)}` : ""}</td>
+      <td><div class="bar"><i style="width:${pct}%;background:${pct < 20 ? "#f85149" : "#3fb950"}">
+      </i></div></td></tr>`;
+  }).join("");
+  $("atts").innerHTML = st.attempts.length ? st.attempts.map(a => {
+    const which = a.attempt === 0 ? "first attempt" : `repair ${a.attempt}`;
+    const tok = a.output_tokens ? `, ${a.output_tokens} tok` : "";
+    const list = a.details.length ?
+      `<ul>${a.details.map(d => `<li>${esc(d)}</li>`).join("")}</ul>` : "";
+    return `<div class="att ${a.outcome}"><b>${esc(a.round)}</b> · ${esc(a.planner)} · ${which}
+      → <b>${esc(a.outcome.replace("_", " "))}</b>
+      <span class="muted">(${a.seconds}s${tok})</span>${list}</div>`;
+  }).join("") : "Press start.";
+  const s = st.summary;
+  $("sum").innerHTML = s.makespan !== undefined ?
+    `Mission finished at t = ${s.makespan}. ${s.attempts} planner attempts,
+     ${s.rejected} rejected by the validator, ${s.violations_caught} violations caught
+     before dispatch.` : "-";
+  $("evs").innerHTML = st.events.slice().reverse().map(e =>
+    `<div class="ev ${e.level}">t=${e.t} · ${esc(e.text)}</div>`).join("");
+}
+
+async function poll() {
+  try { render(await (await fetch("state")).json()); } catch (e) { /* server restarting */ }
+  setTimeout(poll, 300);
+}
+$("start").onclick = () => fetch("start", {method: "POST"});
+poll();
+</script>
+</body></html>

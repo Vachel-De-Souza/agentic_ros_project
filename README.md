@@ -10,8 +10,11 @@ back for repair, and reports feasibility, hallucination, infeasibility detection
 success and plan quality.
 
 - Pure Python 3.10+, no ROS dependency, planner-agnostic.
-- Optional **ROS 2 wrapper** (Jazzy): a validator node with a `validate_plan` service, plus
-  Docker images and a VS Code dev container. See [ros2/README.md](ros2/README.md).
+- **Live demo** in the browser (`fpb demo`): AI plans, validator repairs, playback,
+  breakdown and replanning.
+- Optional **ROS 2 wrapper** (Jazzy): a validator node with a `validate_plan` service, a
+  Gazebo version of the demo (preview), Docker images and a VS Code dev container. See
+  [ros2/README.md](ros2/README.md).
 - The validator is fully deterministic. **No LLM is ever used to judge a plan.**
 - All scenarios are **synthetic**. Units are abstract, and no real site, vehicle or
   customer data is included.
@@ -59,6 +62,43 @@ report = validate(find_scenario("m03_mine_bench"), load_plan("plan.json"))
 print(report.valid, report.counts())
 print(report.model_dump_json(indent=2))  # structured report
 ```
+
+## Live demo
+
+`fpb demo` runs the whole story in your browser: an AI (or any planner) plans, the
+validator rejects and the planner repairs, the fleet plays the plan back on a live site
+map, a machine breaks down mid-mission, and the remaining work is replanned and checked
+before it is dispatched. It needs nothing beyond the core package.
+
+```bash
+fpb demo                                   # OR-Tools planner, opens http://localhost:8080
+export FPB_OLLAMA_URL=https://<your-ollama-host>
+fpb demo -p ollama:gemma4:12b              # live AI planner (the default when the URL is set)
+fpb demo m03_mine_bench --failure none     # another scenario, no breakdown
+fpb demo --failure truck_1@40 --seconds 90 # choose the breakdown and the playback length
+```
+
+![Live demo: the validator rejects the AI's plans, a fallback plan is dispatched, an
+excavator breaks down and the AI's replan is repaired](docs/demo-browser.png)
+
+What the dashboard shows:
+
+- **Site map:** zones, roads (no-go and single-lane highlighted), chargers and the vehicles
+  moving on their routes. A broken-down vehicle is marked with a red cross.
+- **AI planner & validator:** every planning attempt with its outcome, time, tokens and the
+  exact violations the validator found. Nothing is dispatched until a plan passes.
+- **Fleet:** each vehicle's status, current task and battery.
+- **Events:** the mission timeline.
+
+If the AI gives no valid plan within its repairs, the demo falls back to OR-Tools
+(`--fallback`), so a live presentation never stalls. Playback is a replay of the validated
+plan, not a physics simulation.
+
+**Phase 2 (preview): Gazebo and ROS 2.** `ros2/fleet_plan_sim` drives the same demo in
+Gazebo Harmonic through ROS 2 (`ros_gz`), viewed in the browser via noVNC:
+`FPB_OLLAMA_URL=... docker compose -f docker/compose.demo.yaml up --build`, then open
+http://localhost:8080. Next in phase 2: physics-based vehicles with Nav2 driving, so the
+validator can be used inside real ROS 2 workflows. See [ros2/README.md](ros2/README.md).
 
 ## Schema reference
 

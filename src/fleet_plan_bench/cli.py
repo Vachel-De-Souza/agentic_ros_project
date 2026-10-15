@@ -17,7 +17,7 @@ from fleet_plan_bench.bench import (
     write_results,
 )
 from fleet_plan_bench.io import find_scenario, load_builtin_scenarios, load_plan
-from fleet_plan_bench.planners import get_planner
+from fleet_plan_bench.planners import Planner, get_planner
 from fleet_plan_bench.schemas import Infeasible, Scenario, apply_perturbation
 from fleet_plan_bench.validator import ValidatorConfig, validate
 
@@ -153,6 +153,93 @@ def bench(
     (out / "results.md").write_text(markdown_report(episodes, metrics))
     typer.echo(markdown_table(metrics))
     typer.echo(f"\nwrote {out / 'results.json'} and {out / 'results.md'}")
+
+
+@app.command("demo")
+def demo(
+    scenario: Annotated[
+        str, typer.Argument(help="Scenario file or built-in id.")
+    ] = "h05_excavator_breakdown",
+    planner: Annotated[
+        str | None,
+        typer.Option(
+            "--planner",
+            "-p",
+            help="Default: $FPB_DEMO_PLANNER, else ollama:gemma4:12b if "
+            "FPB_OLLAMA_URL is set, else ortools.",
+        ),
+    ] = None,
+    fallback: Annotated[
+        str, typer.Option(help="Used if the planner gives no valid plan ('none' to disable).")
+    ] = "ortools",
+    failure: Annotated[
+        str, typer.Option(help="'scenario' (its own breakdown), 'none', or 'machine@time'.")
+    ] = "scenario",
+    seconds: Annotated[float, typer.Option(help="Wall-clock length of the playback.")] = 60.0,
+    port: Annotated[int, typer.Option(help="Dashboard port.")] = 8080,
+    host: Annotated[str, typer.Option(help="Bind address ('0.0.0.0' to share).")] = "127.0.0.1",
+    open_browser: Annotated[bool, typer.Option("--open/--no-open")] = True,
+    autostart: Annotated[bool, typer.Option(help="Start the mission immediately.")] = False,
+) -> None:
+    """Live browser demo: plan, validate, repair, play back, break down, replan."""
+    import os
+    import threading
+    import time
+    import webbrowser
+
+    from fleet_plan_bench.demo import Dashboard, DemoConfig, DemoRunner, NullMover
+
+    s = find_scenario(scenario)
+    if failure == "none":
+        s = s.model_copy(update={"perturbation": None})
+    name = (
+        planner
+        or os.environ.get("FPB_DEMO_PLANNER")
+        or ("ollama:gemma4:12b" if os.environ.get("FPB_OLLAMA_URL") else "ortools")
+    )
+    config = DemoConfig(
+        mission_seconds=seconds,
+        failure=_parse_failure(failure),
+        fallback=_planner_or_greedy(fallback) if fallback != "none" else None,
+    )
+    runner = DemoRunner(s, _planner_or_greedy(name), NullMover(), config)
+    thread: threading.Thread | None = None
+
+    def start() -> None:
+        nonlocal thread
+        if thread is None or not thread.is_alive():
+            thread = threading.Thread(target=runner.run, daemon=True)
+            thread.start()
+
+    dash = Dashboard(runner.snapshot, start, host=host, port=port, view="map")
+    dash.start()
+    url = f"http://{'localhost' if host in ('127.0.0.1', '0.0.0.0') else host}:{dash.port}/"
+    typer.echo(f"Live demo for {s.id} with planner {runner.planner.name}: {url}  (Ctrl+C to stop)")
+    if open_browser:
+        webbrowser.open(url)
+    if autostart:
+        start()
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        dash.stop()
+
+
+def _parse_failure(value: str) -> tuple[str, float] | None:
+    if value in ("", "scenario", "none"):
+        return None
+    machine, _, t = value.partition("@")
+    return machine, float(t)
+
+
+def _planner_or_greedy(name: str) -> Planner:
+    """OR-Tools is an optional extra; fall back to greedy if it is not installed."""
+    try:
+        return get_planner(name)
+    except ImportError:
+        typer.echo(f"{name} is not installed; using greedy instead", err=True)
+        return get_planner("greedy")
 
 
 @app.command("merge")
