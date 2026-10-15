@@ -9,6 +9,7 @@ adapt it.
 |---|---|---|
 | `fleet_plan_validator_interfaces` | ament_cmake | `srv/ValidatePlan.srv` |
 | `fleet_plan_validator_ros` | ament_python | `validator_node` + `validator.launch.py` |
+| `fleet_plan_sim` | ament_python | Gazebo live demo (phase 2 preview): world generator + `demo_node` |
 
 Tested on **ROS 2 Jazzy** (Ubuntu 24.04, Python 3.12). Humble (Python 3.10) should work with
 `--build-arg ROS_DISTRO=humble`, but it is not tested in CI.
@@ -113,3 +114,38 @@ pytest && ruff check . && mypy src           # core
 scripts/ros2_build.sh --test                 # ROS 2 packages: colcon build + test
 source install/setup.bash && ros2 launch fleet_plan_validator_ros validator.launch.py
 ```
+
+## Gazebo live demo (phase 2 preview)
+
+`fleet_plan_sim` runs the browser demo's story (`fpb demo`) in **Gazebo Harmonic**. A
+planner (AI or OR-Tools) plans, the validator rejects and repairs, the vehicles play the
+validated plan back in Gazebo, a machine breaks down (it tips over under a red marker), and
+the remaining work is replanned and checked before dispatch.
+
+```bash
+FPB_OLLAMA_URL=https://<your-ollama-host> docker compose -f docker/compose.demo.yaml up --build
+# open http://localhost:8080  (dashboard with the Gazebo view; Gazebo alone on :6080)
+```
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `FPB_DEMO_PLANNER` | `ollama:gemma4:12b` | `ortools`, `greedy`, `llm[:model]` or `ollama:<tag>` |
+| `FPB_DEMO_FALLBACK` | `ortools` | Planner used if the main one gives no valid plan (`none` disables) |
+| `FPB_DEMO_SCENARIO` | `h05_excavator_breakdown` | Scenario id |
+| `FPB_DEMO_FAILURE` | `scenario` | `scenario`, `none`, or `machine@time` |
+| `FPB_DEMO_SECONDS` | `60` | Wall-clock length of the playback |
+| `FPB_DEMO_AUTOSTART` | `false` | Start without pressing the button |
+
+How it works:
+- `fpb-sim-world` (`python -m fleet_plan_sim.make_world`) turns a scenario into an SDF world
+  (zones, roads, chargers, vehicles) and a GUI config framing the site.
+- `demo_node` runs the shared demo runner from the core package
+  (`fleet_plan_bench.demo`) and moves vehicles with `/world/fleet_demo/set_pose`
+  (`ros_gz_interfaces/srv/SetEntityPose`) through `ros_gz_bridge`. The world includes
+  Gazebo's Physics system, which is what applies those pose requests.
+- Gazebo renders with software OpenGL under Xvfb and is shown in the browser through
+  x11vnc + noVNC. With a GPU, set `LIBGL_ALWAYS_SOFTWARE=0` and run with `--gpus all`.
+
+This is **plan playback**: vehicles follow the validated plan's routes and timing exactly.
+The next step in phase 2 is physics-based vehicles driven by Nav2, so other teams can
+drop the validator into their own ROS 2 workflows.

@@ -1,0 +1,24 @@
+# Live demo: an AI plans, the validator checks and repairs, Gazebo plays it back.
+#   FPB_OLLAMA_URL=https://<your-ollama-host> docker compose -f docker/compose.demo.yaml up --build
+#   then open http://localhost:8080
+# Without an AI server it falls back to the OR-Tools planner.
+services:
+  demo:
+    build:
+      context: ..
+      dockerfile: docker/sim.Dockerfile
+    image: fleet-plan-validator-demo:jazzy
+    ports:
+      - "8080:8080"   # dashboard (embeds the Gazebo view)
+      - "6080:6080"   # noVNC: Gazebo window in the browser
+    environment:
+      FPB_OLLAMA_URL: ${FPB_OLLAMA_URL:-}
+      FPB_OLLAMA_API_KEY: ${FPB_OLLAMA_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      FPB_DEMO_PLANNER: ${FPB_DEMO_PLANNER:-ollama:gemma4:12b}
+      FPB_DEMO_FALLBACK: ${FPB_DEMO_FALLBACK:-ortools}
+      FPB_DEMO_SCENARIO: ${FPB_DEMO_SCENARIO:-h05_excavator_breakdown}
+      FPB_DEMO_FAILURE: ${FPB_DEMO_FAILURE:-scenario}   # scenario | none | machine@time
+      FPB_DEMO_SECONDS: ${FPB_DEMO_SECONDS:-60}
+      FPB_DEMO_AUTOSTART: ${FPB_DEMO_AUTOSTART:-false}
+    shm_size: 1gb

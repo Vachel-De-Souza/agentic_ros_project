@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>fleet_plan_sim</name>
+  <version>0.1.0</version>
+  <description>
+    Gazebo live demo for fleet-plan-bench: a planner (AI or OR-Tools) proposes a plan, the
+    deterministic validator checks and repairs it, vehicles play it back in Gazebo, a
+    machine fails mid-mission and the remaining work is replanned. The core
+    (fleet-plan-bench) is pip-installed; see ros2/README.md.
+  </description>
+  <maintainer email="97903267+Vachel-De-Souza@users.noreply.github.com">Vachel De Souza</maintainer>
+  <license>MIT</license>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>ros_gz_interfaces</exec_depend>
+  <exec_depend>ros_gz_bridge</exec_depend>
+  <exec_depend>ros_gz_sim</exec_depend>
+
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
