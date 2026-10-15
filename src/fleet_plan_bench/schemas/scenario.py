@@ -43,6 +43,9 @@ class Zone(_Strict):
     id: str
     kind: str = "area"
     no_go: bool = False
+    pos: tuple[float, float] | None = Field(
+        default=None, description="optional map position (x, y), used only for visualisation"
+    )
 
 
 class Edge(_Strict):

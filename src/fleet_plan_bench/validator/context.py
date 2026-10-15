@@ -35,6 +35,21 @@ class EdgeTraversal:
 
 
 @dataclass
+class Segment:
+    """One timed step of a leg: driving an edge, or charging at a zone."""
+
+    kind: str
+    """``drive`` or ``charge``."""
+    a: str
+    b: str
+    """Same as ``a`` for a charge."""
+    t0: float
+    t1: float
+    e0: float
+    e1: float
+
+
+@dataclass
 class Leg:
     """Simulated execution of one assignment by its machine."""
 
@@ -51,6 +66,8 @@ class Leg:
     energy_end: float = 0.0
     energy_violations: list[Violation] = field(default_factory=list)
     traversals: list[EdgeTraversal] = field(default_factory=list)
+    segments: list[Segment] = field(default_factory=list)
+    """Timed drive/charge steps in order (used for playback)."""
 
     @property
     def arrival(self) -> float:
@@ -127,6 +144,10 @@ class Context:
                 room = max(0.0, machine.battery_capacity - energy)
                 added = room if stop.amount is None else min(stop.amount, room)
                 dt = added / machine.charge_rate
+                if dt > 0:
+                    leg.segments.append(
+                        Segment("charge", zone, zone, t, t + dt, energy, energy + added)
+                    )
                 energy += added
                 leg.charge_time += dt
                 t += dt
@@ -140,10 +161,12 @@ class Context:
             dt = dist / machine.speed
             if edge.single_lane:
                 leg.traversals.append(EdgeTraversal(zone, nxt, t, t + dt))
+            e_next = energy - dist * machine.energy_per_distance
+            leg.segments.append(Segment("drive", zone, nxt, t, t + dt, energy, e_next))
             t += dt
             leg.distance += dist
             leg.travel_time += dt
-            energy -= dist * machine.energy_per_distance
+            energy = e_next
             if energy < -tol and not depleted:
                 depleted = True
                 leg.energy_violations.append(
